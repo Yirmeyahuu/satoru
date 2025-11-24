@@ -1,4 +1,4 @@
-import { AlertCircle, TrendingDown, Clock, DollarSign } from "lucide-react";
+import { AlertCircle, FileQuestion, Clock, HelpCircle } from "lucide-react";
 import { useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -10,59 +10,83 @@ export function Problem() {
   const container = useRef(null);
 
   useGSAP(() => {
-    // Animate header
-    gsap.from(".problem-header", {
-      opacity: 0,
-      y: 30,
-      duration: 0.8,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: ".problem-header",
-        start: "top 85%",
+    // Animate header on scroll
+    gsap.fromTo(".problem-header", 
+      {
+        opacity: 0,
+        y: 30,
+      },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".problem-header",
+          start: "top 80%",
+          end: "top 50%",
+          toggleActions: "play none none none",
+        }
       }
-    });
+    );
 
-    // Animate problem cards
-    gsap.from(".problem-card", {
-      opacity: 0,
-      y: 50,
-      stagger: 0.15,
-      duration: 0.6,
-      ease: "power2.out",
-      scrollTrigger: {
-        trigger: ".problem-grid",
-        start: "top 80%",
+    // Animate problem cards on scroll
+    gsap.fromTo(".problem-card", 
+      {
+        opacity: 0,
+        y: 50,
+      },
+      {
+        opacity: 1,
+        y: 0,
+        stagger: 0.15,
+        duration: 0.6,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: ".problem-grid",
+          start: "top 75%",
+          end: "top 40%",
+          toggleActions: "play none none none",
+        }
       }
-    });
+    );
 
-    // Animate bottom statement
-    gsap.from(".problem-cta", {
-      opacity: 0,
-      y: 30,
-      duration: 0.8,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: ".problem-cta",
-        start: "top 90%",
+    // Animate bottom statement on scroll
+    gsap.fromTo(".problem-cta", 
+      {
+        opacity: 0,
+        y: 30,
+      },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".problem-cta",
+          start: "top 85%",
+          end: "top 60%",
+          toggleActions: "play none none none",
+        }
       }
-    });
+    );
   }, { scope: container });
 
   const problems = [
     {
-      icon: TrendingDown,
-      title: "Inefficient Workflows",
-      description: "Traditional methods are costing you valuable time and resources, creating bottlenecks that slow down your entire operation.",
+      icon: FileQuestion,
+      title: "Information Overload",
+      description: "Drowning in lengthy documents and unable to quickly extract the insights you need to make informed decisions.",
     },
     {
       icon: Clock,
-      title: "Time-Consuming Processes",
-      description: "Manual tasks eat away at your productivity, leaving your team overwhelmed and unable to focus on what truly matters.",
+      title: "Time-Consuming Reading",
+      description: "Spending countless hours reading through documents when you need quick summaries and key takeaways.",
     },
     {
-      icon: DollarSign,
-      title: "Rising Operational Costs",
-      description: "Legacy systems drain your budget while failing to deliver the performance and scalability your business demands.",
+      icon: HelpCircle,
+      title: "Missing Key Details",
+      description: "Important information buried in dense text, making it easy to overlook critical points and insights.",
     },
   ];
 
@@ -82,7 +106,7 @@ export function Problem() {
             <span className="text-red-300">The Challenge</span>
           </div>
           
-          <h2 className="mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">
             <span className="block text-gray-100 mb-2">
               The Problems Holding
             </span>
@@ -91,13 +115,13 @@ export function Problem() {
             </span>
           </h2>
           
-          <p className="text-gray-400">
+          <p className="text-gray-400 text-lg">
             In today's fast-paced digital landscape, outdated systems and inefficient processes are more than just inconveniences—they're roadblocks to growth and success.
           </p>
         </div>
 
         {/* Problem Cards */}
-        <div className="problem-grid grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="problem-grid grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16">
           {problems.map((problem, index) => {
             const Icon = problem.icon;
             return (
@@ -113,7 +137,7 @@ export function Problem() {
                 </div>
 
                 {/* Content */}
-                <h3 className="mb-3 text-gray-100 group-hover:text-red-300 transition-colors">
+                <h3 className="text-xl font-semibold mb-3 text-gray-100 group-hover:text-red-300 transition-colors">
                   {problem.title}
                 </h3>
                 <p className="text-gray-400 leading-relaxed">
@@ -128,11 +152,11 @@ export function Problem() {
         </div>
 
         {/* Bottom Statement */}
-        <div className="problem-cta max-w-3xl mx-auto text-center mt-16">
+        <div className="problem-cta max-w-3xl mx-auto text-center">
           <div className="p-6 rounded-xl border border-red-500/20 bg-gradient-to-r from-red-950/30 to-orange-950/30 backdrop-blur-sm">
-            <p className="text-gray-300">
+            <p className="text-gray-300 text-lg">
               These challenges compound over time, creating friction at every level of your organization.{" "}
-              <span className="text-red-400">But it doesn't have to be this way.</span>
+              <span className="text-red-400 font-semibold">But it doesn't have to be this way.</span>
             </p>
           </div>
         </div>

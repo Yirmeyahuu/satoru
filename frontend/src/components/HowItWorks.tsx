@@ -174,7 +174,7 @@ export function HowItWorks() {
             <p className="text-gray-400 mb-6">
               Join thousands of users who have transformed their workflows.
             </p>
-            <button className="px-8 py-4 rounded-lg bg-gradient-to-r from-cyan-500 to-purple-600 text-white hover:shadow-[0_0_30px_rgba(34,211,238,0.6)] transition-all duration-300">
+            <button className="px-8 py-4 rounded-lg bg-gradient-to-r from-cyan-500 to-sky-600 text-white hover:shadow-[0_0_30px_rgba(34,211,238,0.6)] transition-all duration-300">
               Start Free Trial
             </button>
           </div>

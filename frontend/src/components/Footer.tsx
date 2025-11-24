@@ -50,13 +50,13 @@ export function Footer() {
             {/* Brand Column */}
             <div className="col-span-2">
               <a href="#hero" className="flex items-center space-x-2 mb-6">
-                <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-cyan-400 to-purple-600 p-0.5">
+                <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-cyan-400 to-sky-600 p-0.5">
                   <div className="h-full w-full rounded-lg bg-black flex items-center justify-center">
-                    <div className="h-5 w-5 rounded-full bg-gradient-to-br from-cyan-400 to-purple-600"></div>
+                    <div className="h-5 w-5 rounded-full bg-gradient-to-br from-cyan-400 to-sky-600"></div>
                   </div>
                 </div>
-                <span className="bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent">
-                  DeepSpace
+                <span className="bg-gradient-to-r from-cyan-400 to-sky-600 bg-clip-text text-transparent">
+                  Satoru
                 </span>
               </a>
               <p className="text-gray-400 mb-6 leading-relaxed">
@@ -67,15 +67,15 @@ export function Footer() {
               <div className="space-y-3">
                 <div className="flex items-center space-x-3 text-gray-400 hover:text-cyan-400 transition-colors">
                   <MapPin className="w-4 h-4 flex-shrink-0" />
-                  <span>San Francisco, CA</span>
+                  <span>Bacolod City, Negros Island, Philippines, 6100</span>
                 </div>
                 <div className="flex items-center space-x-3 text-gray-400 hover:text-cyan-400 transition-colors">
                   <Phone className="w-4 h-4 flex-shrink-0" />
-                  <span>+1 (555) 123-4567</span>
+                  <span>(+63) 908 560 8811</span>
                 </div>
                 <div className="flex items-center space-x-3 text-gray-400 hover:text-cyan-400 transition-colors">
                   <Mail className="w-4 h-4 flex-shrink-0" />
-                  <span>hello@deepspace.com</span>
+                  <span>contact@cosdevs.com</span>
                 </div>
               </div>
             </div>
@@ -148,26 +148,6 @@ export function Footer() {
               </ul>
             </div>
           </div>
-
-          {/* Newsletter */}
-          <div className="max-w-md mx-auto mb-12">
-            <div className="p-6 rounded-xl border border-cyan-500/20 bg-cyan-500/5 backdrop-blur-sm">
-              <h4 className="text-gray-100 mb-2">Stay Updated</h4>
-              <p className="text-gray-400 mb-4">
-                Get the latest news and updates delivered to your inbox.
-              </p>
-              <div className="flex gap-2">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="flex-1 px-4 py-2 rounded-lg bg-black/50 border border-cyan-500/30 text-gray-300 placeholder-gray-500 focus:outline-none focus:border-cyan-500/50 transition-colors"
-                />
-                <button className="px-6 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-purple-600 text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.5)] transition-all duration-300 whitespace-nowrap">
-                  Subscribe
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Bottom Bar */}
@@ -175,7 +155,7 @@ export function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             {/* Copyright */}
             <div className="text-gray-400">
-              © {new Date().getFullYear()} DeepSpace. All rights reserved.
+              © {new Date().getFullYear()} Satoru. Developed by COS Devs.
             </div>
 
             {/* Social Links */}

@@ -4,7 +4,6 @@ import { Problem } from "./components/Problem";
 import { About } from "./components/About";
 import { HowItWorks } from "./components/HowItWorks";
 import { Features } from "./components/Features";
-import { UseCases } from "./components/UseCases";
 import { Footer } from "./components/Footer";
 
 export default function App() {
@@ -17,7 +16,6 @@ export default function App() {
         <About />
         <HowItWorks />
         <Features />
-        <UseCases />
       </main>
       <Footer />
     </div>
