@@ -1,14 +1,25 @@
-// filepath: frontend/src/App.tsx
-import './App.css'
+import { Navbar } from "./components/Navbar";
+import { Hero } from "./components/Hero";
+import { Problem } from "./components/Problem";
+import { About } from "./components/About";
+import { HowItWorks } from "./components/HowItWorks";
+import { Features } from "./components/Features";
+import { UseCases } from "./components/UseCases";
+import { Footer } from "./components/Footer";
 
-function App() {
+export default function App() {
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-900 text-white">
-      <h1 className="text-4xl font-bold underline">
-        Satoru Frontend with Tailwind!
-      </h1>
+    <div className="min-h-screen bg-black text-white overflow-x-hidden">
+      <Navbar />
+      <main>
+        <Hero />
+        <Problem />
+        <About />
+        <HowItWorks />
+        <Features />
+        <UseCases />
+      </main>
+      <Footer />
     </div>
-  )
+  );
 }
-
-export default App
