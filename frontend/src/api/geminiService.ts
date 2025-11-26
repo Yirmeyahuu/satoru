@@ -1,5 +1,0 @@
-- extractTextFromPDF(file: File)
-- generateFlashcards(content: string, count: 10-40)
-- generateSummary(content: string)
-- generateInsights(content: string)
-- generateExamples(content: string)
