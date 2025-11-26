@@ -8,12 +8,16 @@ import { documentService } from "../api/documentService";
 import { websocketService } from "../api/websocketService";
 import type { User } from "../api/types";
 
+interface RecentUploadsHandle {
+  refresh: () => void;
+}
+
 export function Dashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
-  const recentUploadsRef = useRef<{ refresh: () => void } | null>(null);
+  const recentUploadsRef = useRef<RecentUploadsHandle>(null);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
