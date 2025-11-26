@@ -13,7 +13,7 @@ export function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
-  const recentUploadsRef = useRef<{ refresh: () => void }>(null);
+  const recentUploadsRef = useRef<{ refresh: () => void } | null>(null);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
