@@ -15,14 +15,55 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
+# Update ALLOWED_HOSTS
 if os.getenv("RENDER") == "True":
-    ALLOWED_HOSTS = ["satoru.onrender.com", "*.onrender.com", "localhost", "127.0.0.1"]
+    ALLOWED_HOSTS = [
+        "satoru.onrender.com", 
+        "*.onrender.com", 
+        "localhost", 
+        "127.0.0.1"
+    ]
 else:
     ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+
+# Update CORS for production
+if os.getenv("RENDER") == "True":
+    CORS_ALLOWED_ORIGINS = [
+        "https://satoru-frontend.vercel.app",  # Your Vercel domain
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ]
+else:
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ]
+
+CORS_ALLOW_CREDENTIALS = True
+
+# Channel Layers (WebSocket backend)
+if os.getenv("RENDER") == "True":
+    # Use Redis on Render
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                "hosts": [os.getenv('REDIS_URL', 'redis://localhost:6379')],
+            },
+        },
+    }
+else:
+    # Use in-memory for local dev
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer'
+        }
+    }
 
 
 # Application definition
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -32,14 +73,22 @@ INSTALLED_APPS = [
     'api',
     'distiller',
     'documents',
-
+    'channels',
 
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
 ]
 
-# Add REST Framework configuration (add at the end of settings.py)
+# Media files (uploaded documents)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# File Upload Settings
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
+
+# Add REST Framework configuration
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -60,14 +109,6 @@ SIMPLE_JWT = {
     'SIGNING_KEY': SECRET_KEY,
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
-
-# CORS settings
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
-
-CORS_ALLOW_CREDENTIALS = True
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -98,8 +139,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Satoruproject.wsgi.application'
-
-
+ASGI_APPLICATION = 'Satoruproject.asgi.application'
 
 # Database Configuration
 if os.getenv("RENDER") == "True":
@@ -121,10 +161,7 @@ else:
         }
     }
 
-
 # Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -140,25 +177,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
 STATIC_URL = 'static/'
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
