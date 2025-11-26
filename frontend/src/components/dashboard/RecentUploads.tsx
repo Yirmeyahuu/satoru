@@ -4,7 +4,7 @@ import { useState, useEffect, useImperativeHandle, forwardRef } from "react";
 import { documentService } from "../../api/documentService";
 import type { DocumentListItem } from "../../api/types";
 
-export const RecentUploads = forwardRef<{ refresh: () => Promise<void> }>((props, ref) => {
+export const RecentUploads = forwardRef<{ refresh: () => Promise<void> }>((_props, ref) => {
   const [documents, setDocuments] = useState<DocumentListItem[]>([]);
   const [loading, setLoading] = useState(true);
 
