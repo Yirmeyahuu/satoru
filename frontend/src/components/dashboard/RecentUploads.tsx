@@ -1,14 +1,10 @@
 import { FileText, Calendar, Eye, Loader } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
+import { useState, useEffect, useImperativeHandle, forwardRef } from "react";
 import { documentService } from "../../api/documentService";
 import type { DocumentListItem } from "../../api/types";
 
-export interface RecentUploadsHandle {
-  refresh: () => void;
-}
-
-export const RecentUploads = forwardRef<RecentUploadsHandle, Record<string, never>>((_, ref) => {
+export const RecentUploads = forwardRef<{ refresh: () => Promise<void> }>((props, ref) => {
   const [documents, setDocuments] = useState<DocumentListItem[]>([]);
   const [loading, setLoading] = useState(true);
 

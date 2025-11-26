@@ -2,22 +2,18 @@ import { DashboardLayout } from "../layouts/DashboardLayout";
 import { UploadButton } from "../components/dashboard/UploadButton";
 import { RecentUploads } from "../components/dashboard/RecentUploads";
 import { Sparkles, Upload as UploadIcon } from "lucide-react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { authService } from "../api/authService";
 import { documentService } from "../api/documentService";
 import { websocketService } from "../api/websocketService";
 import type { User } from "../api/types";
-
-interface RecentUploadsHandle {
-  refresh: () => void;
-}
 
 export function Dashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
-  const recentUploadsRef = useRef<RecentUploadsHandle>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -44,16 +40,13 @@ export function Dashboard() {
       // Subscribe to document updates
       const unsubscribe = websocketService.onDocumentUpdate((updatedDoc) => {
         console.log('Dashboard received document update:', updatedDoc);
-        // Refresh the recent uploads when a document is updated
-        if (recentUploadsRef.current) {
-          recentUploadsRef.current.refresh();
-        }
+        // Trigger refresh by changing key
+        setRefreshKey(prev => prev + 1);
       });
       
       // Cleanup on unmount
       return () => {
         unsubscribe();
-        // Don't disconnect - other pages might be using it
       };
     }
   }, []);
@@ -78,11 +71,9 @@ export function Dashboard() {
       console.log("Upload successful!");
       setUploadSuccess(true);
       
-      // Refresh recent uploads immediately after upload
+      // Trigger refresh after upload
       setTimeout(() => {
-        if (recentUploadsRef.current) {
-          recentUploadsRef.current.refresh();
-        }
+        setRefreshKey(prev => prev + 1);
       }, 500);
       
       // Hide success message after 3 seconds
@@ -164,7 +155,7 @@ export function Dashboard() {
         </div>
 
         {/* Recent Uploads */}
-        <RecentUploads ref={recentUploadsRef} />
+        <RecentUploads key={refreshKey} />
       </div>
     </DashboardLayout>
   );
