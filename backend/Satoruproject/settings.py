@@ -29,9 +29,14 @@ else:
 # Update CORS for production
 if os.getenv("RENDER") == "True":
     CORS_ALLOWED_ORIGINS = [
-        "https://satoru-frontend.vercel.app",  # Your Vercel domain
+        "https://satoru-chi.vercel.app",
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+    ]
+    # Also add these CORS settings for Render
+    CORS_ALLOW_ALL_ORIGINS = False
+    CSRF_TRUSTED_ORIGINS = [
+        "https://satoru-chi.vercel.app",
     ]
 else:
     CORS_ALLOWED_ORIGINS = [
