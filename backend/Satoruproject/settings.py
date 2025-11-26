@@ -18,7 +18,7 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 # Update ALLOWED_HOSTS
 if os.getenv("RENDER") == "True":
     ALLOWED_HOSTS = [
-        "satoru.onrender.com", 
+        "satoru-fi2r.onrender.com", 
         "*.onrender.com", 
         "localhost", 
         "127.0.0.1"
