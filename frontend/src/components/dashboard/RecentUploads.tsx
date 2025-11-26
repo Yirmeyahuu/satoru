@@ -8,7 +8,7 @@ export interface RecentUploadsHandle {
   refresh: () => void;
 }
 
-export const RecentUploads = forwardRef<RecentUploadsHandle>((props, ref) => {
+export const RecentUploads = forwardRef<RecentUploadsHandle, Record<string, never>>((_, ref) => {
   const [documents, setDocuments] = useState<DocumentListItem[]>([]);
   const [loading, setLoading] = useState(true);
 

@@ -5,7 +5,7 @@ type DocumentUpdateCallback = (document: DocumentListItem) => void;
 class WebSocketService {
   private ws: WebSocket | null = null;
   private callbacks: Set<DocumentUpdateCallback> = new Set();
-  private reconnectTimeout: NodeJS.Timeout | null = null;
+  private reconnectTimeout: ReturnType<typeof setTimeout> | null = null;  // Change this line
   private userId: number | null = null;
 
   private getWebSocketUrl(userId: number): string {
