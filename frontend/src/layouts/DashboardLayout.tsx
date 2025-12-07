@@ -13,7 +13,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       
       <div className="relative z-10">
         <Sidebar />
-        <main className="lg:ml-64 p-4 lg:p-8">
+        <main className="pt-24 lg:pt-0 lg:ml-64 p-4 lg:p-8">
           {children}
         </main>
       </div>

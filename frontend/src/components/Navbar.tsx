@@ -22,11 +22,11 @@ export function Navbar() {
           <div className="flex items-center">
             <a href="#hero" className="flex items-center space-x-2">
               <img 
-                src="/SatoruRelIcon.png" 
+                src="/SaturoLogo.png" 
                 alt="Satoru Logo" 
                 className="h-8 w-8 object-contain"
               />
-              <span className="bg-gradient-to-r from-cyan-400 to-sky-600 bg-clip-text text-transparent cursor-pointer text-xl font-semibold">
+              <span className="text-white cursor-pointer text-xl font-semibold">
                 Satoru
               </span>
             </a>

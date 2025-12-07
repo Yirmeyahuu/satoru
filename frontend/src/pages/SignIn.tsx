@@ -70,11 +70,11 @@ export function SignIn() {
           {/* Logo */}
           <div className="flex items-center justify-center space-x-2 mb-8">
             <img 
-              src="/SatoruRelIcon.png" 
+              src="/SaturoLogo.png" 
               alt="Satoru Logo" 
               className="h-10 w-10 object-contain"
             />
-            <span className="bg-gradient-to-r from-cyan-400 to-sky-600 bg-clip-text text-transparent text-2xl font-semibold">
+            <span className="text-white text-2xl font-semibold">
               Satoru
             </span>
           </div>

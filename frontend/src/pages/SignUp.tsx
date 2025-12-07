@@ -100,7 +100,7 @@ export function SignUp() {
           {/* Logo */}
           <div className="flex items-center justify-center space-x-2 mb-8">
             <img 
-              src="/SatoruRelIcon.png" 
+              src="/SaturoLogo.png" 
               alt="Satoru Logo" 
               className="h-10 w-10 object-contain"
             />

@@ -52,11 +52,11 @@ export function Sidebar() {
         <div className="flex items-center justify-between p-4">
           <Link to="/dashboard" className="flex items-center space-x-2">
             <img 
-              src="/SatoruRelIcon.png" 
+              src="/SaturoLogo.png" 
               alt="Satoru Logo" 
               className="h-8 w-8 object-contain"
             />
-            <span className="bg-gradient-to-r from-cyan-400 to-sky-600 bg-clip-text text-transparent text-xl font-semibold">
+            <span className="text-white text-xl font-semibold">
               Satoru
             </span>
           </Link>
@@ -89,11 +89,11 @@ export function Sidebar() {
         <div className="hidden lg:block p-6 border-b border-cyan-500/20">
           <Link to="/dashboard" className="flex items-center space-x-3 group">
             <img 
-              src="/SatoruRelIcon.png" 
+              src="/SaturoLogo.png" 
               alt="Satoru Logo" 
               className="h-10 w-10 object-contain group-hover:scale-110 transition-transform duration-300"
             />
-            <span className="bg-gradient-to-r from-cyan-400 to-sky-600 bg-clip-text text-transparent text-2xl font-semibold">
+            <span className="text-white text-2xl font-semibold">
               Satoru
             </span>
           </Link>
