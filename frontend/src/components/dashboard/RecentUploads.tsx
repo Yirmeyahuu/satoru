@@ -1,166 +1,195 @@
-import { FileText, Calendar, Eye, Loader } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useState, useEffect, useImperativeHandle, forwardRef } from "react";
-import { documentService } from "../../api/documentService";
-import type { DocumentListItem } from "../../api/types";
+import { FileText, Clock, CheckCircle, AlertCircle, Loader2, Trash2 } from "lucide-react";
+import type { documentService, Document } from "../../firebase/documentService";
+import { useAuth } from "../../contexts/AuthContext";
 
-export const RecentUploads = forwardRef<{ refresh: () => Promise<void> }>((_props, ref) => {
-  const [documents, setDocuments] = useState<DocumentListItem[]>([]);
+export function RecentUploads() {
+  const { user } = useAuth();
+  const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const fetchRecentDocuments = async () => {
-    try {
-      setLoading(true);
-      const docs = await documentService.getAllDocuments();
-      // Get only the 3 most recent documents
-      setDocuments(docs.slice(0, 3));
-    } catch (error) {
-      console.error("Failed to fetch documents:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchRecentDocuments();
-  }, []);
+    if (!user) return;
 
-  // Expose refresh method to parent
-  useImperativeHandle(ref, () => ({
-    refresh: fetchRecentDocuments
-  }));
+    // Subscribe to real-time updates
+    const unsubscribe = documentService.subscribeToUserDocuments((docs) => {
+      setDocuments(docs);
+      setLoading(false);
+    });
 
-  const getStatusColor = (status: DocumentListItem["status"]) => {
-    switch (status) {
-      case "completed":
-        return "text-green-400";
-      case "processing":
-        return "text-yellow-400";
-      case "failed":
-        return "text-red-400";
-      default:
-        return "text-gray-400";
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, [user]);
+
+  const handleDelete = async (docId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!confirm("Are you sure you want to delete this document?")) {
+      return;
+    }
+
+    try {
+      setDeletingId(docId);
+      await documentService.deleteDocument(docId);
+      // Real-time listener will auto-update the list
+    } catch (error) {
+      console.error("Delete error:", error);
+      alert("Failed to delete document");
+    } finally {
+      setDeletingId(null);
     }
   };
 
-  const getStatusText = (status: DocumentListItem["status"]) => {
+  const getStatusIcon = (status: Document['status']) => {
     switch (status) {
-      case "completed":
-        return "Ready";
-      case "processing":
-        return "Processing";
-      case "failed":
-        return "Failed";
-      default:
-        return "Unknown";
+      case 'completed':
+        return <CheckCircle className="w-5 h-5 text-green-400" />;
+      case 'processing':
+        return <Loader2 className="w-5 h-5 text-cyan-400 animate-spin" />;
+      case 'failed':
+        return <AlertCircle className="w-5 h-5 text-red-400" />;
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+  const getStatusText = (status: Document['status']) => {
+    switch (status) {
+      case 'completed':
+        return 'Completed';
+      case 'processing':
+        return 'Processing...';
+      case 'failed':
+        return 'Failed';
+    }
+  };
+
+  const getStatusColor = (status: Document['status']) => {
+    switch (status) {
+      case 'completed':
+        return 'text-green-400 bg-green-500/10 border-green-500/20';
+      case 'processing':
+        return 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20';
+      case 'failed':
+        return 'text-red-400 bg-red-500/10 border-red-500/20';
+    }
+  };
+
+  const formatDate = (date: Date) => {
     const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diff = now.getTime() - date.getTime();
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
 
-    if (diffDays === 1) return "Today";
-    if (diffDays === 2) return "Yesterday";
-    if (diffDays <= 7) return `${diffDays - 1} days ago`;
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days < 7) return `${days}d ago`;
     return date.toLocaleDateString();
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
   if (loading) {
     return (
-      <div className="bg-black/40 backdrop-blur-xl border border-cyan-500/20 rounded-2xl p-6 lg:p-8">
-        <h2 className="text-xl lg:text-2xl font-semibold mb-6">Recent Uploads</h2>
-        <div className="text-center py-12">
-          <Loader className="w-12 h-12 lg:w-16 lg:h-16 text-cyan-400 animate-spin mx-auto mb-4" />
-          <p className="text-gray-400">Loading documents...</p>
+      <div className="bg-gray-900/50 border border-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <h2 className="text-lg sm:text-xl lg:text-2xl font-bold">Recent Uploads</h2>
         </div>
-      </div>
-    );
-  }
-
-  if (documents.length === 0) {
-    return (
-      <div className="bg-black/40 backdrop-blur-xl border border-cyan-500/20 rounded-2xl p-6 lg:p-8">
-        <h2 className="text-xl lg:text-2xl font-semibold mb-6">Recent Uploads</h2>
-        <div className="text-center py-12">
-          <FileText className="w-12 h-12 lg:w-16 lg:h-16 text-gray-600 mx-auto mb-4" />
-          <p className="text-gray-400">No documents uploaded yet</p>
-          <p className="text-gray-500 text-sm mt-2">
-            Upload your first document to get started
-          </p>
+        <div className="flex items-center justify-center h-48 sm:h-64">
+          <Loader2 className="w-8 h-8 sm:w-10 sm:h-10 text-cyan-400 animate-spin" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-black/40 backdrop-blur-xl border border-cyan-500/20 rounded-2xl p-6 lg:p-8">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl lg:text-2xl font-semibold">Recent Uploads</h2>
-        <Link
-          to="/documents"
-          className="text-cyan-400 hover:text-cyan-300 transition-colors text-xs lg:text-sm font-medium"
-        >
-          View All →
-        </Link>
-      </div>
-
-      <div className="space-y-3 lg:space-y-4">
-        {documents.map((doc) => (
+    <div className="bg-gray-900/50 border border-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8">
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <h2 className="text-lg sm:text-xl lg:text-2xl font-bold">Recent Uploads</h2>
+        {documents.length > 0 && (
           <Link
-            key={doc.id}
-            to={`/documents/${doc.id}`}
-            className="block group bg-black/30 border border-cyan-500/20 rounded-xl p-3 lg:p-4 hover:bg-cyan-500/5 hover:border-cyan-500/40 transition-all duration-300 cursor-pointer"
+            to="/documents"
+            className="text-cyan-400 hover:text-cyan-300 text-xs sm:text-sm font-medium transition-colors"
           >
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-start space-x-3 lg:space-x-4 flex-1 min-w-0">
-                {/* File Icon */}
-                <div className="flex-shrink-0 bg-gradient-to-r from-cyan-500/20 to-sky-600/20 p-2 lg:p-3 rounded-lg border border-cyan-500/30 group-hover:scale-105 transition-transform duration-300">
-                  <FileText className="w-5 h-5 lg:w-6 lg:h-6 text-cyan-400" />
-                </div>
-
-                {/* Document Info */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-sm lg:text-base text-white font-medium mb-1 truncate group-hover:text-cyan-400 transition-colors">
-                    {doc.title}
-                  </h3>
-                  <div className="flex items-center flex-wrap gap-2 lg:gap-4 text-xs lg:text-sm text-gray-400">
-                    <span className="flex items-center space-x-1">
-                      <Calendar className="w-3 h-3 lg:w-4 lg:h-4" />
-                      <span>{formatDate(doc.uploaded_at)}</span>
-                    </span>
-                    <span>{doc.pages} pages</span>
-                    {doc.flashcard_count > 0 && (
-                      <span>{doc.flashcard_count} flashcards</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Status and Actions */}
-              <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 lg:gap-4">
-                <div className="flex items-center space-x-2">
-                  {doc.status === "processing" && (
-                    <Loader className="w-3 h-3 lg:w-4 lg:h-4 text-yellow-400 animate-spin" />
-                  )}
-                  <span className={`text-xs lg:text-sm font-medium whitespace-nowrap ${getStatusColor(doc.status)}`}>
-                    {getStatusText(doc.status)}
-                  </span>
-                </div>
-                {doc.status === "completed" && (
-                  <div className="p-1.5 lg:p-2 rounded-lg bg-cyan-500/10 text-cyan-400 group-hover:bg-cyan-500/20 transition-colors">
-                    <Eye className="w-4 h-4 lg:w-5 lg:h-5" />
-                  </div>
-                )}
-              </div>
-            </div>
+            View All →
           </Link>
-        ))}
+        )}
       </div>
+
+      {documents.length === 0 ? (
+        <div className="text-center py-8 sm:py-12 lg:py-16">
+          <FileText className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 text-gray-600 mx-auto mb-3 sm:mb-4" />
+          <h3 className="text-base sm:text-lg font-semibold text-gray-400 mb-2">No documents yet</h3>
+          <p className="text-xs sm:text-sm text-gray-500">
+            Upload your first document to get started with AI-powered learning
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3 sm:space-y-4">
+          {documents.slice(0, 5).map((doc) => (
+            <Link
+              key={doc.id}
+              to={`/documents/${doc.id}`}
+              className="block group relative"
+            >
+              <div className="bg-gray-800/50 border border-gray-700 rounded-lg sm:rounded-xl p-3 sm:p-4 hover:bg-gray-800 hover:border-cyan-500/30 transition-all">
+                <div className="flex items-start justify-between gap-3 sm:gap-4">
+                  <div className="flex-1 min-w-0">
+                    {/* Title and Icon */}
+                    <div className="flex items-start gap-2 sm:gap-3 mb-2">
+                      <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-sm sm:text-base text-white truncate group-hover:text-cyan-400 transition-colors">
+                          {doc.title}
+                        </h3>
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1 text-xs sm:text-sm text-gray-400">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                            {formatDate(doc.created_at)}
+                          </span>
+                          <span>•</span>
+                          <span>{doc.pages} pages</span>
+                          <span>•</span>
+                          <span>{formatFileSize(doc.file_size)}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Status Badge */}
+                    <div className={`inline-flex items-center gap-1.5 px-2 sm:px-3 py-1 rounded-full border text-xs sm:text-sm font-medium ${getStatusColor(doc.status)}`}>
+                      {getStatusIcon(doc.status)}
+                      <span>{getStatusText(doc.status)}</span>
+                    </div>
+                  </div>
+
+                  {/* Delete Button */}
+                  {doc.status !== 'processing' && (
+                    <button
+                      onClick={(e) => handleDelete(doc.id, e)}
+                      disabled={deletingId === doc.id}
+                      className="flex-shrink-0 p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
+                      title="Delete document"
+                    >
+                      {deletingId === doc.id ? (
+                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                      )}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
-});
-
-RecentUploads.displayName = 'RecentUploads';
+}

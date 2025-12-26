@@ -1,7 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { LayoutDashboard, FileText, User, LogOut, Menu, X } from "lucide-react";
 import { useState } from "react";
-import { authService } from "../api/authService";
 
 export function Sidebar() {
   const location = useLocation();

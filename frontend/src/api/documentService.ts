@@ -1,4 +1,3 @@
-import { apiClient } from './axiosConfig';
 import type { Document, DocumentListItem, DocumentSummary, Flashcard, DocumentStats } from './types';
 
 export const documentService = {

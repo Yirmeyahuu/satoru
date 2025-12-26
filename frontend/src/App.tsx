@@ -1,9 +1,13 @@
-import { AppRoutes } from "./routes/AppRoutes";
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { AppRoutes } from './routes/AppRoutes'
+import { AuthProvider } from './contexts/AuthContext'
+import './index.css'
 
-export default function App() {
-  return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden">
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <AuthProvider>
       <AppRoutes />
-    </div>
-  );
-}
+    </AuthProvider>
+  </React.StrictMode>,
+)

@@ -11,6 +11,7 @@ import { SignUp } from '../pages/SignUp';
 import { Dashboard } from '../pages/Dashboard';
 import { Documents } from '../pages/Documents';
 import { DocumentDetail } from '../pages/DocumentDetail';
+import { ProtectedRoute } from '../components/ProtectedRoute';
 
 function Home() {
   return (
@@ -35,11 +36,32 @@ export function AppRoutes() {
         <Route path="/" element={<Home />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/documents" element={<Documents />} />
-        <Route path="/documents/:id" element={<DocumentDetail />} />
-        {/* TODO: Add more routes */}
-        {/* <Route path="/profile" element={<Profile />} /> */}
+        
+        {/* Protected Routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/documents"
+          element={
+            <ProtectedRoute>
+              <Documents />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/documents/:id"
+          element={
+            <ProtectedRoute>
+              <DocumentDetail />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );

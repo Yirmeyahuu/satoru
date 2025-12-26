@@ -1,13 +1,9 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
+from django.urls import path
 from . import views
 
-app_name = 'documents'
-
-router = DefaultRouter()
-router.register(r'', views.DocumentViewSet, basename='document')
-
 urlpatterns = [
-    path('stats/', views.document_stats, name='document-stats'),
-    path('', include(router.urls)),
+    path('upload/', views.upload_document, name='upload-document'),
+    path('', views.get_documents, name='get-documents'),
+    path('<str:doc_id>/', views.get_document, name='get-document'),
+    path('<str:doc_id>/delete/', views.delete_document, name='delete-document'),
 ]

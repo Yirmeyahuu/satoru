@@ -1,6 +1,5 @@
 from pathlib import Path
 import os
-import dj_database_url
 from dotenv import load_dotenv
 from datetime import timedelta
 
@@ -9,7 +8,9 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-AUTH_USER_MODEL = 'api.User'
+# Initialize Firebase
+from firebase_config import initialize_firebase
+initialize_firebase()
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 
@@ -33,7 +34,6 @@ if os.getenv("RENDER") == "True":
         "http://localhost:5173",
         "http://127.0.0.1:5173",
     ]
-    # Also add these CORS settings for Render
     CORS_ALLOW_ALL_ORIGINS = False
     CSRF_TRUSTED_ORIGINS = [
         "https://satoru-chi.vercel.app",
@@ -46,29 +46,8 @@ else:
 
 CORS_ALLOW_CREDENTIALS = True
 
-# Channel Layers (WebSocket backend)
-if os.getenv("RENDER") == "True":
-    # Use Redis on Render
-    CHANNEL_LAYERS = {
-        'default': {
-            'BACKEND': 'channels_redis.core.RedisChannelLayer',
-            'CONFIG': {
-                "hosts": [os.getenv('REDIS_URL', 'redis://localhost:6379')],
-            },
-        },
-    }
-else:
-    # Use in-memory for local dev
-    CHANNEL_LAYERS = {
-        'default': {
-            'BACKEND': 'channels.layers.InMemoryChannelLayer'
-        }
-    }
-
-
 # Application definition
 INSTALLED_APPS = [
-    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -76,16 +55,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'api',
-    'distiller',
     'documents',
-    'channels',
-
+    
     'rest_framework',
-    'rest_framework_simplejwt',
     'corsheaders',
 ]
 
-# Media files (uploaded documents)
+# Media files (uploaded documents - not used anymore with Firebase Storage)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -93,26 +69,24 @@ MEDIA_ROOT = BASE_DIR / 'media'
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
 
-# Add REST Framework configuration
+# REST Framework configuration with Firebase Auth
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'api.firebase_auth.FirebaseAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
 }
 
-# Simple JWT settings
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    'ROTATE_REFRESH_TOKENS': False,
-    'BLACKLIST_AFTER_ROTATION': True,
-    'UPDATE_LAST_LOGIN': True,
-    'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY,
-    'AUTH_HEADER_TYPES': ('Bearer',),
+# Firebase settings
+FIREBASE_CONFIG = {
+    'apiKey': "AIzaSyAiW1Q4xUU364qrroVb-0Gl6yh1myJ-4Y8",
+    'authDomain': "satoru-c9658.firebaseapp.com",
+    'projectId': "satoru-c9658",
+    'storageBucket': "satoru-c9658.firebasestorage.app",
+    'messagingSenderId': "1083085974090",
+    'appId': "1:1083085974090:web:336ac53e699585cfd8d4b3"
 }
 
 MIDDLEWARE = [
@@ -145,27 +119,14 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Satoruproject.wsgi.application'
-ASGI_APPLICATION = 'Satoruproject.asgi.application'
 
-# Database Configuration
-if os.getenv("RENDER") == "True":
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=os.getenv('DATABASE_URL'),
-            conn_max_age=600
-        )
+# NO DATABASE - Using Firestore
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',  # Keep for admin/sessions only
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('DB_NAME'),
-            'USER': os.getenv('DB_USER'),
-            'PASSWORD': os.getenv('DB_PASSWORD'),
-            'HOST': os.getenv('DB_HOST'),
-            'PORT': os.getenv('DB_PORT'),
-        }
-    }
+}
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -191,7 +152,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # Add this line
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # For production - serve static files with WhiteNoise
 if os.getenv("RENDER") == "True":

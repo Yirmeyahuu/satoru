@@ -21,7 +21,7 @@ class GeminiService:
             genai.configure(api_key=api_key)
             # Use gemini-2.0-flash-exp - it's fast, reliable, and widely available
             self.model = genai.GenerativeModel('gemini-2.0-flash')
-            print("Gemini model initialized successfully with gemini-2.0-flash-exp")
+            print("Gemini model initialized successfully with gemini-2.5-flash")
         except Exception as e:
             print(f"ERROR initializing Gemini: {str(e)}")
             raise

@@ -3,53 +3,14 @@ import { UploadButton } from "../components/dashboard/UploadButton";
 import { RecentUploads } from "../components/dashboard/RecentUploads";
 import { Sparkles, Upload as UploadIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { authService } from "../api/authService";
-import { documentService } from "../api/documentService";
-import { websocketService } from "../api/websocketService";
-import type { User } from "../api/types";
+import { useAuth } from "../contexts/AuthContext";
+import { documentService } from "../firebase/documentService"; // Correct import for documentService
 
 export function Dashboard() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading: authLoading } = useAuth();
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
-
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const userData = await authService.getUserProfile();
-        setUser(userData);
-      } catch (error) {
-        console.error("Failed to fetch user profile:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserProfile();
-  }, []);
-
-  // WebSocket connection
-  useEffect(() => {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      const user = JSON.parse(userStr);
-      websocketService.connect(user.id);
-      
-      // Subscribe to document updates
-      const unsubscribe = websocketService.onDocumentUpdate((updatedDoc) => {
-        console.log('Dashboard received document update:', updatedDoc);
-        // Trigger refresh by changing key
-        setRefreshKey(prev => prev + 1);
-      });
-      
-      // Cleanup on unmount
-      return () => {
-        unsubscribe();
-      };
-    }
-  }, []);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -58,7 +19,7 @@ export function Dashboard() {
     return "Good evening";
   };
 
-  const userName = user?.first_name || user?.email?.split("@")[0] || "there";
+  const userName = user?.displayName || user?.email?.split("@")[0] || "there";
 
   const handleFileUpload = async (file: File) => {
     try {
@@ -71,7 +32,7 @@ export function Dashboard() {
       console.log("Upload successful!");
       setUploadSuccess(true);
       
-      // Trigger refresh after upload
+      // Trigger refresh (Firebase will auto-update via real-time listener)
       setTimeout(() => {
         setRefreshKey(prev => prev + 1);
       }, 500);
@@ -89,7 +50,7 @@ export function Dashboard() {
     }
   };
 
-  if (loading) {
+  if (authLoading) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-64">

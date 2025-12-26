@@ -3,67 +3,34 @@ import { DashboardLayout } from "../layouts/DashboardLayout";
 import { DocumentGrid } from "../components/documents/DocumentGrid";
 import { DocumentFilters } from "../components/documents/DocumentFilters";
 import { UploadButton } from "../components/dashboard/UploadButton";
-import { documentService } from "../api/documentService";
-import { websocketService } from "../api/websocketService";
-import type { DocumentListItem } from "../api/types";
+import { documentService, type Document } from "../firebase/documentService";
+import { useAuth } from "../contexts/AuthContext";
 import { Upload } from "lucide-react";
 
 export function Documents() {
-  const [documents, setDocuments] = useState<DocumentListItem[]>([]);
-  const [filteredDocuments, setFilteredDocuments] = useState<DocumentListItem[]>([]);
+  const { user } = useAuth();
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [filteredDocuments, setFilteredDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("newest");
 
   useEffect(() => {
-    fetchDocuments();
-    
-    // Connect to WebSocket
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      const user = JSON.parse(userStr);
-      websocketService.connect(user.id);
-      
-      // Subscribe to document updates
-      const unsubscribe = websocketService.onDocumentUpdate((updatedDoc) => {
-        setDocuments(prev => {
-          const index = prev.findIndex(doc => doc.id === updatedDoc.id);
-          if (index >= 0) {
-            // Update existing document
-            const newDocs = [...prev];
-            newDocs[index] = updatedDoc;
-            return newDocs;
-          } else {
-            // Add new document
-            return [updatedDoc, ...prev];
-          }
-        });
-      });
-      
-      // Cleanup on unmount
-      return () => {
-        unsubscribe();
-        websocketService.disconnect();
-      };
-    }
-  }, []);
+    if (!user) return;
+
+    // Subscribe to real-time updates from Firestore
+    const unsubscribe = documentService.subscribeToUserDocuments((docs) => {
+      setDocuments(docs);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
 
   useEffect(() => {
     filterAndSortDocuments();
   }, [documents, searchTerm, sortBy]);
-
-  const fetchDocuments = async () => {
-    try {
-      setLoading(true);
-      const docs = await documentService.getAllDocuments();
-      setDocuments(docs);
-    } catch (error) {
-      console.error("Failed to fetch documents:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const filterAndSortDocuments = () => {
     let filtered = [...documents];
@@ -79,9 +46,9 @@ export function Documents() {
     filtered.sort((a, b) => {
       switch (sortBy) {
         case "newest":
-          return new Date(b.uploaded_at).getTime() - new Date(a.uploaded_at).getTime();
+          return b.created_at.getTime() - a.created_at.getTime();
         case "oldest":
-          return new Date(a.uploaded_at).getTime() - new Date(b.uploaded_at).getTime();
+          return a.created_at.getTime() - b.created_at.getTime();
         case "name":
           return a.title.localeCompare(b.title);
         default:
@@ -96,7 +63,7 @@ export function Documents() {
     try {
       setUploading(true);
       await documentService.uploadDocument(file);
-      // No need to refresh - WebSocket will update automatically
+      // Real-time listener will update the list
     } catch (error) {
       console.error("Upload failed:", error);
       alert("Failed to upload document. Please try again.");
@@ -105,15 +72,14 @@ export function Documents() {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this document?")) {
       return;
     }
 
     try {
       await documentService.deleteDocument(id);
-      // Remove from state
-      setDocuments(documents.filter((doc) => doc.id !== id));
+      // Real-time listener will update the list
     } catch (error) {
       console.error("Delete failed:", error);
       alert("Failed to delete document. Please try again.");
@@ -135,7 +101,6 @@ export function Documents() {
               Manage your uploaded documents and flashcards
             </p>
           </div>
-          
           <div className="text-right">
             <div className="text-2xl font-bold text-cyan-400">
               {documents.length}
