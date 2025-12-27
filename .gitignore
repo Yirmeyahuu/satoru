@@ -1,0 +1,33 @@
+# Python / Django
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+db.sqlite3
+.env
+/staticfiles/
+/media/
+
+# Virtual Environment
+.venv/
+venv/
+env/
+ENV/
+.virt/
+virt/
+
+# Node / React / Vite
+node_modules/
+dist/
+build/
+.npm/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Editor & OS Files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
