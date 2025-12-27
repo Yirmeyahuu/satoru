@@ -123,20 +123,6 @@ export function Sidebar() {
             );
           })}
         </nav>
-
-        {/* Logout Button */}
-        <div className="p-4 border-t border-cyan-500/20">
-          <button
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-            className="flex items-center space-x-3 px-4 py-3 rounded-lg w-full text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <LogOut className="w-5 h-5" />
-            <span className="font-medium">
-              {isLoggingOut ? "Logging out..." : "Logout"}
-            </span>
-          </button>
-        </div>
       </aside>
     </>
   );

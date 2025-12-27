@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FileText, Clock, CheckCircle, AlertCircle, Loader2, Trash2 } from "lucide-react";
-import type { documentService, Document } from "../../firebase/documentService";
+import { documentService } from "../../firebase/documentService";
+import type { Document } from "../../firebase/documentService";
 import { useAuth } from "../../contexts/AuthContext";
 
 export function RecentUploads() {
