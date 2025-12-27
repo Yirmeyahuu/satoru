@@ -2,9 +2,11 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import { useRef } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
+import { useNavigate } from "react-router-dom";
 
 export function Hero() {
   const container = useRef(null);
+  const navigate = useNavigate(); 
 
   useGSAP(() => {
     const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 0.8 } });
@@ -71,13 +73,19 @@ export function Hero() {
 
           {/* CTA Buttons */}
           <div className="hero-cta flex flex-col sm:flex-row gap-4 mb-16">
-            <button className="group px-8 py-4 rounded-lg bg-gradient-to-r from-cyan-500 to-sky-600 text-white hover:shadow-[0_0_30px_rgba(34,211,238,0.6)] transition-all duration-300 flex items-center space-x-2 cursor-pointer">
+            <button
+              onClick={() => navigate("/signin")}
+              className="group px-8 py-4 rounded-lg bg-gradient-to-r from-cyan-500 to-sky-600 text-white hover:shadow-[0_0_30px_rgba(34,211,238,0.6)] transition-all duration-300 flex items-center space-x-2 cursor-pointer"
+            >
               <span>Upload Your First Document</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
-            <button className="px-8 py-4 rounded-lg border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 hover:border-cyan-500/50 transition-all duration-300 backdrop-blur-sm cursor-pointer">
+            <a
+              href="#how-it-works"
+              className="px-8 py-4 rounded-lg border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 hover:border-cyan-500/50 transition-all duration-300 backdrop-blur-sm cursor-pointer flex items-center justify-center"
+            >
               See How It Works
-            </button>
+            </a>
           </div>
         </div>
       </div>

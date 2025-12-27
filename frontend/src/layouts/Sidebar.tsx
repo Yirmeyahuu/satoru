@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { LayoutDashboard, FileText, User, LogOut, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { authService } from "../firebase/authService";
+import { useToast } from "../components/ToastProvider";
 
 
 export function Sidebar() {
@@ -9,6 +10,7 @@ export function Sidebar() {
   const navigate = useNavigate();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { showToast } = useToast();
 
   const navItems = [
     {
@@ -34,11 +36,13 @@ export function Sidebar() {
     setIsLoggingOut(true);
     try {
       await authService.signOut();
-      navigate("/signin");
+      showToast("Signed out successfully!", "success");
+      navigate("/signin", { replace: true });
     } catch (error) {
-      console.error("Logout error:", error);
-      // Still redirect even if API call fails
-      navigate("/signin");
+      showToast("Failed to sign out", "error");
+      navigate("/signin", { replace: true });
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 

@@ -66,7 +66,7 @@ export function Navbar() {
 
       {/* Mobile Navigation */}
       {isOpen && (
-        <div className="md:hidden border-t border-cyan-500/20 bg-black/95 backdrop-blur-md">
+        <div className="md:hidden border-t border-cyan-500/20 bg-black/90 backdrop-blur-md">
           <div className="space-y-1 px-4 py-4">
             {navItems.map((item) => (
               <a
@@ -80,7 +80,7 @@ export function Navbar() {
             ))}
             <Link
               to="/signin"
-              className="w-full mt-4 px-6 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-purple-600 text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.5)] transition-all duration-300 text-center block"
+              className="w-full mt-4 px-6 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-sky-600 text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.5)] transition-all duration-300 text-center block"
               onClick={() => setIsOpen(false)}
             >
               Get Started
