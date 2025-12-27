@@ -1,5 +1,6 @@
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 
 export function Navbar() {
@@ -43,9 +44,12 @@ export function Navbar() {
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-400 to-sky-600 group-hover:w-full transition-all duration-300"></span>
               </a>
             ))}
-            <button className="px-6 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-sky-600 text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.5)] transition-all duration-300 cursor-pointer">
+            <Link
+              to="/signin"
+              className="px-6 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-sky-600 text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.5)] transition-all duration-300 cursor-pointer"
+            >
               Get Started
-            </button>
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -74,9 +78,13 @@ export function Navbar() {
                 {item.name}
               </a>
             ))}
-            <button className="w-full mt-4 px-6 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-purple-600 text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.5)] transition-all duration-300">
+            <Link
+              to="/signin"
+              className="w-full mt-4 px-6 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-purple-600 text-white hover:shadow-[0_0_20px_rgba(34,211,238,0.5)] transition-all duration-300 text-center block"
+              onClick={() => setIsOpen(false)}
+            >
               Get Started
-            </button>
+            </Link>
           </div>
         </div>
       )}

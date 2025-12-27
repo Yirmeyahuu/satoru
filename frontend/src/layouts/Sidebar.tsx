@@ -1,6 +1,8 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { LayoutDashboard, FileText, User, LogOut, Menu, X } from "lucide-react";
 import { useState } from "react";
+import { authService } from "../firebase/authService";
+
 
 export function Sidebar() {
   const location = useLocation();
@@ -31,7 +33,7 @@ export function Sidebar() {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      await authService.logout();
+      await authService.signOut();
       navigate("/signin");
     } catch (error) {
       console.error("Logout error:", error);
@@ -123,6 +125,19 @@ export function Sidebar() {
             );
           })}
         </nav>
+
+        <div className="p-4 border-t border-cyan-500/20">
+          <button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="flex items-center space-x-3 px-4 py-3 rounded-lg w-full text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <LogOut className="w-5 h-5" />
+            <span className="font-medium">
+              {isLoggingOut ? "Logging out..." : "Logout"}
+            </span>
+          </button>
+        </div>
       </aside>
     </>
   );
