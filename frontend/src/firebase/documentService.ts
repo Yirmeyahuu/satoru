@@ -1,19 +1,14 @@
 import {
   collection,
   doc,
-  addDoc,
   getDoc,
   getDocs,
-  updateDoc,
-  deleteDoc,
   query,
   where,
   orderBy,
   onSnapshot,
-  Timestamp
 } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { db, storage, auth } from './config';
+import { db, auth } from './config';
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
@@ -22,11 +17,10 @@ export interface Document {
   id: string;
   user_id: string;
   title: string;
-  file_url: string;
   file_name: string;
   file_size: number;
   status: 'processing' | 'completed' | 'failed';
-  pages: number;
+  pages?: number;
   created_at: Date;
   processed_at?: Date;
 }
@@ -62,7 +56,7 @@ class DocumentService {
       const formData = new FormData();
       formData.append('file', file);
 
-      // Upload to backend (which will handle Firebase Storage)
+      // Upload to backend
       const response = await axios.post(`${API_URL}/api/documents/upload/`, formData, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -70,7 +64,11 @@ class DocumentService {
         },
       });
 
-      return response.data.document.id;
+      if (response.data.document && response.data.document.id) {
+        return response.data.document.id;
+      } else {
+        throw new Error('Invalid response from server: document ID missing');
+      }
     } catch (error: any) {
       console.error('Upload error:', error);
       throw new Error(error.response?.data?.error || 'Failed to upload document');
@@ -92,7 +90,7 @@ class DocumentService {
       );
 
       const querySnapshot = await getDocs(q);
-      
+
       return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
@@ -156,7 +154,7 @@ class DocumentService {
       );
 
       const querySnapshot = await getDocs(q);
-      
+
       return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -193,7 +191,7 @@ class DocumentService {
    */
   subscribeToDocument(docId: string, callback: (doc: Document) => void) {
     const docRef = doc(db, 'documents', docId);
-    
+
     return onSnapshot(docRef, (snapshot) => {
       if (snapshot.exists()) {
         callback({

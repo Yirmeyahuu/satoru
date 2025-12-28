@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Loader } from "lucide-react";
-import { documentService } from "../api/documentService";
+     import { documentService } from "../firebase/documentService";
 import { FlashcardViewer } from "../components/documents/FlashcardViewer";
 import type { Document, Flashcard } from "../api/types";
 
@@ -18,10 +18,10 @@ export function DocumentDetail() {
     const loadDocument = async () => {
       try {
         if (!id) return;
-        const doc = await documentService.getDocument(Number(id));
+        const doc = await documentService.getDocument(id);
         setDocument(doc);
-
-        const cards = await documentService.getDocumentFlashcards(Number(id));
+  
+        const cards = await documentService.getDocumentFlashcards(id);
         setFlashcards(cards);
       } catch (err) {
         setError("Failed to load document");
@@ -30,7 +30,7 @@ export function DocumentDetail() {
         setLoading(false);
       }
     };
-
+  
     loadDocument();
   }, [id]);
 

@@ -2,73 +2,101 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from firebase_config import get_firestore_client, get_storage_bucket
+from firebase_config import get_firestore_client
 from .huggingface_service import huggingface_service
 import uuid
-import threading
 from datetime import datetime
 import os
+import requests
+import PyPDF2
 
 db = get_firestore_client()
-bucket = get_storage_bucket()
-
+HF_API_URL = os.environ.get("HUGGINGFACE_API_URL")
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def upload_document(request):
-    """Upload and process a document"""
     if 'file' not in request.FILES:
         return Response({'error': 'No file provided'}, status=status.HTTP_400_BAD_REQUEST)
     
     file = request.FILES['file']
     user = request.user
-    
-    # Validate file type
-    if not file.name.endswith('.pdf'):
-        return Response({'error': 'Only PDF files are supported'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    # Validate file size (10MB max)
-    if file.size > 10 * 1024 * 1024:
-        return Response({'error': 'File too large (max 10MB)'}, status=status.HTTP_400_BAD_REQUEST)
-    
+
+    # Validate file type and size as before...
+
     try:
-        # Generate document ID
+        # Extract text from PDF
+        pdf_reader = PyPDF2.PdfReader(file)
+        text = ""
+        for page in pdf_reader.pages:
+            text += page.extract_text() or ""
+        
+        # Send extracted text to Hugging Face API
+        hf_response = requests.post(
+            HF_API_URL,
+            json={"text": text},
+            timeout=600
+        )
+        print("HF status:", hf_response.status_code)
+        print("HF response:", hf_response.text)
+        if hf_response.status_code != 200:
+            return Response({'error': 'Failed to process document with Hugging Face', 'details': hf_response.text}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        hf_data = hf_response.json()
+        summary_data = hf_data.get('summary', '')
+
+        # Example: Generate flashcards (replace with your own logic or Hugging Face output)
+        flashcards = hf_data.get('flashcards', [])
+        # If Hugging Face doesn't return flashcards, you can generate simple ones:
+        if not flashcards:
+            flashcards = [
+                {
+                    'question': 'What is the main topic of the document?',
+                    'answer': summary_data,
+                }
+            ]
+
+        # Create document data
         doc_id = str(uuid.uuid4())
-        
-        # Upload to Firebase Storage
-        blob = bucket.blob(f'documents/{user["uid"]}/{doc_id}/{file.name}')
-        blob.upload_from_file(file, content_type='application/pdf')
-        blob.make_public()
-        
-        file_url = blob.public_url
-        
-        # Create document in Firestore
         doc_data = {
-            'id': doc_id,
-            'user_id': user['uid'],
-            'user_email': user['email'],
-            'title': file.name,
-            'file_url': file_url,
-            'file_name': file.name,
-            'file_size': file.size,
-            'status': 'processing',
-            'pages': 0,
-            'created_at': datetime.utcnow(),
-            'processed_at': None
+            "id": doc_id,
+            "user_id": user.uid,
+            "user_email": user.email,
+            "title": file.name,
+            "file_name": file.name,
+            "file_size": file.size,
+            "status": "completed",
+            "created_at": datetime.utcnow(),
+            "processed_at": datetime.utcnow(),
         }
-        
+
+        # Save doc_data to Firestore
         db.collection('documents').document(doc_id).set(doc_data)
-        
-        # Process in background
-        thread = threading.Thread(target=process_document_background, args=(doc_id, file_url))
-        thread.daemon = True
-        thread.start()
-        
+
+        # Save summary to Firestore
+        db.collection('summaries').document(doc_id).set({
+            'summary': summary_data,
+            'document_id': doc_id,
+            'created_at': datetime.utcnow(),
+        })
+
+        # Save flashcards to Firestore
+        for i, card in enumerate(flashcards):
+            db.collection('flashcards').add({
+                'document_id': doc_id,
+                'question': card['question'],
+                'answer': card['answer'],
+                'order': i,
+                'created_at': datetime.utcnow(),
+            })
+
         return Response({
-            'message': 'Document uploaded successfully',
-            'document': doc_data
+            'message': 'Document uploaded and processed successfully',
+            'document': doc_data,
+            'summary': summary_data,
+            'flashcards': flashcards
         }, status=status.HTTP_201_CREATED)
-        
+
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

@@ -23,14 +23,8 @@ class FirebaseAuthentication(authentication.BaseAuthentication):
         email = decoded_token.get('email', '')
         name = decoded_token.get('name', '')
         
-        # Store user info in request
-        user = {
-            'uid': uid,
-            'email': email,
-            'name': name,
-            'is_authenticated': True
-        }
-        
+        # Return a FirebaseUser instance instead of a dict
+        user = FirebaseUser(uid, email, name)
         return (user, None)
 
     def authenticate_header(self, request):

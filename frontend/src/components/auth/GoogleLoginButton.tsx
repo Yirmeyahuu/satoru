@@ -1,7 +1,7 @@
 import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { authService } from "../../api/authService";
+import { authService } from "../../firebase/authService";
 
 export function GoogleLoginButton() {
   const navigate = useNavigate();
