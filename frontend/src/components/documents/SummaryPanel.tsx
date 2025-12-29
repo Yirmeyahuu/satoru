@@ -1,8 +1,8 @@
 import { BookOpen, Lightbulb, Code2, RotateCw } from "lucide-react";
-import type { DocumentSummary } from "../../api/types";
+import type { Summary } from "../../api/types";
 
 interface SummaryPanelProps {
-  summary: DocumentSummary;
+  summary: Summary;
   onRegenerate?: () => void;
   isRegenerating?: boolean;
 }

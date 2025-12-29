@@ -37,7 +37,7 @@ export function FlashcardCard({ flashcard }: FlashcardCardProps) {
               <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getDifficultyColor(flashcard.difficulty)}`}>
                 {flashcard.difficulty}
               </span>
-              <div className="flex items-center space-x-2 text-gray-400 text-sm">
+              <div className="flex items-center space-x-2 text-white text-sm">
                 <RotateCcw className="w-4 h-4" />
                 <span>Click to flip</span>
               </div>
@@ -56,12 +56,12 @@ export function FlashcardCard({ flashcard }: FlashcardCardProps) {
 
         {/* Back Side - Answer */}
         <div className="absolute inset-0 backface-hidden rotate-y-180">
-          <div className="h-full bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-xl border-2 border-purple-500/30 rounded-2xl p-8 flex flex-col">
+          <div className="h-full bg-gradient-to-br from-sky-400 to-blue-600 backdrop-blur-xl border-2 border-purple-500/30 rounded-2xl p-8 flex flex-col">
             <div className="flex items-center justify-between mb-6">
               <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getDifficultyColor(flashcard.difficulty)}`}>
                 {flashcard.difficulty}
               </span>
-              <div className="flex items-center space-x-2 text-gray-400 text-sm">
+              <div className="flex items-center space-x-2 text-white text-sm">
                 <RotateCcw className="w-4 h-4" />
                 <span>Click to flip</span>
               </div>
@@ -69,7 +69,7 @@ export function FlashcardCard({ flashcard }: FlashcardCardProps) {
 
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center">
-                <div className="text-purple-400 text-sm font-medium mb-4">ANSWER</div>
+                <div className="text-white text-sm font-medium mb-4">ANSWER</div>
                 <p className="text-white text-lg md:text-xl leading-relaxed">
                   {flashcard.answer}
                 </p>

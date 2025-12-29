@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { authService, type User } from '../firebase/authService';
 
 interface AuthContextType {
@@ -27,39 +27,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signInWithGoogle = async () => {
-    try {
-      const user = await authService.signInWithGoogle();
-      setUser(user);
-    } catch (error: any) {
-      throw error;
-    }
+    const user = await authService.signInWithGoogle();
+    setUser(user);
   };
 
   const signInWithEmail = async (email: string, password: string) => {
-    try {
-      const user = await authService.signInWithEmail(email, password);
-      setUser(user);
-    } catch (error: any) {
-      throw error;
-    }
+    const user = await authService.signInWithEmail(email, password);
+    setUser(user);
   };
 
   const signUpWithEmail = async (email: string, password: string, displayName: string) => {
-    try {
-      const user = await authService.signUpWithEmail(email, password, displayName);
-      setUser(user);
-    } catch (error: any) {
-      throw error;
-    }
+    const user = await authService.signUpWithEmail(email, password, displayName);
+    setUser(user);
   };
 
   const signOut = async () => {
-    try {
-      await authService.signOut();
-      setUser(null);
-    } catch (error: any) {
-      throw error;
-    }
+    await authService.signOut();
+    setUser(null);
   };
 
   return (

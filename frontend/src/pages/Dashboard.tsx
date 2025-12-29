@@ -2,7 +2,7 @@ import { DashboardLayout } from "../layouts/DashboardLayout";
 import { UploadButton } from "../components/dashboard/UploadButton";
 import { RecentUploads } from "../components/dashboard/RecentUploads";
 import { Sparkles, Upload as UploadIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { documentService } from "../firebase/documentService"; // Correct import for documentService
 

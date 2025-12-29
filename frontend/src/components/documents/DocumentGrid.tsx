@@ -1,9 +1,9 @@
 import { DocumentCard } from "./DocumentCard";
 import { FileText } from "lucide-react";
-import type { DocumentListItem } from "../../api/types";
+import type { Document } from "../../api/types";
 
 interface DocumentGridProps {
-  documents: DocumentListItem[];
+  documents: Document[];
   onDelete?: (id: number) => void;
   loading?: boolean;
 }
