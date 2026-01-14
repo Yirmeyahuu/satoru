@@ -8,35 +8,44 @@ def initialize_firebase():
     try:
         # Check if already initialized
         firebase_admin.get_app()
-        print("Firebase already initialized")
+        print("✓ Firebase already initialized")
+        return
     except ValueError:
-        # Initialize Firebase
-        if os.getenv("RENDER") == "True":
-            # On Render, use environment variable with JSON string
+        pass  # Not initialized yet, continue
+    
+    try:
+        # Check if we're on Render or production environment
+        is_production = os.getenv("RENDER") == "True" or os.getenv("RAILWAY_ENVIRONMENT")
+        
+        if is_production:
+            # Production: use environment variable with JSON string
             cred_json = os.getenv('FIREBASE_SERVICE_ACCOUNT')
-            if cred_json:
-                cred_dict = json.loads(cred_json)
-                cred = credentials.Certificate(cred_dict)
-            else:
-                raise Exception("FIREBASE_SERVICE_ACCOUNT not found in environment")
+            if not cred_json:
+                raise Exception("FIREBASE_SERVICE_ACCOUNT environment variable not set")
+            
+            print("Loading Firebase credentials from environment variable...")
+            cred_dict = json.loads(cred_json)
+            cred = credentials.Certificate(cred_dict)
         else:
-            # Local development - use JSON file
+            # Local development: use JSON file
             cred_path = os.path.join(os.path.dirname(__file__), 'firebase-service-account.json')
-            if os.path.exists(cred_path):
-                cred = credentials.Certificate(cred_path)
-            else:
-                raise Exception("firebase-service-account.json not found")
+            if not os.path.exists(cred_path):
+                raise Exception(f"firebase-service-account.json not found at {cred_path}")
+            
+            print("Loading Firebase credentials from local file...")
+            cred = credentials.Certificate(cred_path)
         
         firebase_admin.initialize_app(cred, {
             'storageBucket': 'satoru-c9658.firebasestorage.app'
         })
         print("✓ Firebase Admin SDK initialized successfully")
+        
+    except Exception as e:
+        print(f"✗ Firebase initialization error: {str(e)}")
+        raise
 
 # Initialize on import
-try:
-    initialize_firebase()
-except Exception as e:
-    print(f"✗ Firebase initialization error: {str(e)}")
+initialize_firebase()
 
 # Export Firebase services
 def get_firestore_client():
