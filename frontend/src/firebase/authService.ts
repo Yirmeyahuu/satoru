@@ -4,11 +4,12 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
+  sendPasswordResetEmail as firebaseSendPasswordResetEmail,
+  updateProfile,
   type User as FirebaseUser,
-  updateProfile
 } from 'firebase/auth';
 import { auth, googleProvider, db } from './config';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 
 export interface User {
   uid: string;
@@ -83,10 +84,74 @@ class AuthService {
   }
 
   /**
+   * Send password reset email
+   */
+  async sendPasswordResetEmail(email: string): Promise<void> {
+    try {
+      await firebaseSendPasswordResetEmail(auth, email);
+    } catch (error: any) {
+      console.error('Password reset error:', error);
+      throw new Error(error.message || 'Failed to send password reset email');
+    }
+  }
+
+  /**
+   * Update user profile
+   */
+  async updateUserProfile(updates: { displayName?: string; photoURL?: string }): Promise<void> {
+    const user = auth.currentUser;
+    if (!user) throw new Error('No user logged in');
+
+    try {
+      // Only update displayName in Firebase Auth (photoURL stored in Firestore)
+      if (updates.displayName) {
+        await updateProfile(user, { displayName: updates.displayName });
+      }
+
+      // Update Firestore document with both name and photo
+      const userRef = doc(db, 'users', user.uid);
+      await updateDoc(userRef, {
+        ...updates,
+        updatedAt: new Date()
+      });
+
+      // Force reload user
+      await user.reload();
+    } catch (error: any) {
+      console.error('Profile update error:', error);
+      throw new Error(error.message || 'Failed to update profile');
+    }
+  }
+
+  /**
    * Get current user
    */
   getCurrentUser(): FirebaseUser | null {
     return auth.currentUser;
+  }
+
+  /**
+   * Get user data from Firestore
+   */
+  async getUserData(uid: string): Promise<User | null> {
+    try {
+      const userRef = doc(db, 'users', uid);
+      const userSnap = await getDoc(userRef);
+
+      if (userSnap.exists()) {
+        const data = userSnap.data();
+        return {
+          uid: data.uid,
+          email: data.email,
+          displayName: data.displayName,
+          photoURL: data.photoURL
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting user data:', error);
+      return null;
+    }
   }
 
   /**
@@ -108,9 +173,15 @@ class AuthService {
    * Listen to auth state changes
    */
   onAuthStateChange(callback: (user: User | null) => void) {
-    return onAuthStateChanged(auth, (firebaseUser) => {
+    return onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        callback(this.formatUser(firebaseUser));
+        // Fetch user data from Firestore to get custom photoURL
+        const userData = await this.getUserData(firebaseUser.uid);
+        if (userData) {
+          callback(userData);
+        } else {
+          callback(this.formatUser(firebaseUser));
+        }
       } else {
         callback(null);
       }

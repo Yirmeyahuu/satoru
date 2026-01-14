@@ -24,7 +24,7 @@ export function Sidebar() {
       icon: FileText,
     },
     {
-      name: "Profile & Settings",
+      name: "Profile",
       href: "/profile",
       icon: User,
     },

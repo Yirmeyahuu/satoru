@@ -164,21 +164,6 @@ export function HowItWorks() {
             );
           })}
         </div>
-
-        {/* Bottom CTA */}
-        <div className="hiw-cta max-w-3xl mx-auto text-center mt-20">
-          <div className="p-8 rounded-xl border border-cyan-500/20 bg-gradient-to-r from-cyan-950/30 to-purple-950/30 backdrop-blur-sm">
-            <h3 className="mb-4 text-gray-100">
-              Ready to Get Started?
-            </h3>
-            <p className="text-gray-400 mb-6">
-              Join thousands of users who have transformed their workflows.
-            </p>
-            <button className="px-8 py-4 rounded-lg bg-gradient-to-r from-cyan-500 to-sky-600 text-white hover:shadow-[0_0_30px_rgba(34,211,238,0.6)] transition-all duration-300">
-              Start Free Trial
-            </button>
-          </div>
-        </div>
       </div>
     </section>
   );

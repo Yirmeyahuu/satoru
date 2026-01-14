@@ -43,6 +43,13 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+/* Mobile font size adjustment */
+@media (max-width: 640px) {
+  :root {
+    --font-size: 14px;
+  }
+}
+
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
@@ -184,6 +191,27 @@
       line-height: 1.5;
     }
   }
+  
+  /* Mobile-specific typography adjustments */
+  @media (max-width: 640px) {
+    :where(:not(:has([class*=' text-']), :not(:has([class^='text-'])))) {
+      h1 {
+        font-size: 1.75rem; /* Reduced from 2xl */
+      }
+
+      h2 {
+        font-size: 1.5rem; /* Reduced from xl */
+      }
+
+      h3 {
+        font-size: 1.25rem; /* Reduced from lg */
+      }
+
+      h4, p, label, button, input {
+        font-size: 0.875rem; /* Reduced from base */
+      }
+    }
+  }
 }
 
 html {
@@ -196,6 +224,13 @@ html {
     linear-gradient(rgba(34, 211, 238, 0.2) 1px, transparent 1px),
     linear-gradient(90deg, rgba(34, 211, 238, 0.2) 1px, transparent 1px);
   background-size: 30px 30px;
+}
+
+/* Mobile grid adjustment */
+@media (max-width: 640px) {
+  .grid-bg {
+    background-size: 20px 20px;
+  }
 }
 
 /* Gradient Particles */
@@ -334,6 +369,12 @@ html {
   background: linear-gradient(180deg, rgba(34, 211, 238, 0.7) 0%, rgba(168, 85, 247, 0.7) 100%);
 }
 
+/* Mobile scrollbar adjustment */
+@media (max-width: 640px) {
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+}
 
 @keyframes fade-in-up {
   from {
@@ -362,7 +403,6 @@ html {
 .animation-delay-600 {
   animation-delay: 600ms;
 }
-
 
 /* Shimmer effect for welcome section */
 @keyframes shimmer {

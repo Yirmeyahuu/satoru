@@ -187,16 +187,6 @@ export function Features() {
             );
           })}
         </div>
-
-        {/* Bottom Statement */}
-        <div className="features-cta max-w-4xl mx-auto text-center">
-          <p className="text-gray-400 text-lg mb-6">
-            Join thousands of users who are already saving time and extracting better insights from their documents.
-          </p>
-          <button className="px-8 py-4 rounded-lg bg-gradient-to-r from-cyan-500 to-sky-600 text-white hover:shadow-[0_0_30px_rgba(34,211,238,0.6)] transition-all duration-300">
-            Get Started Free
-          </button>
-        </div>
       </div>
     </section>
   );

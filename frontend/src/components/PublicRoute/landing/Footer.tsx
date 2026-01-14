@@ -2,29 +2,29 @@ import { Github, Twitter, Linkedin, Mail, MapPin, Phone } from "lucide-react";
 
 export function Footer() {
   const footerLinks = {
-    product: [
-      { name: "Features", href: "#features" },
-      { name: "Pricing", href: "#" },
-      { name: "Security", href: "#" },
-      { name: "Roadmap", href: "#" },
-    ],
+  product: [
+    { name: "Features", href: "/#features" },
+    { name: "Pricing", href: "/pricing" },
+    { name: "Security", href: "/security" },
+    { name: "Roadmap", href: "/roadmap" },
+  ],
     company: [
-      { name: "About", href: "#about" },
-      { name: "Blog", href: "#" },
-      { name: "Careers", href: "#" },
-      { name: "Press Kit", href: "#" },
+      { name: "About", href: "https://www.cosedevs.com/" },
+      { name: "Blog", href: "/blog" },
+      { name: "Careers", href: "/careers" },
+      { name: "Press Kit", href: "/press-kit" },
     ],
     resources: [
-      { name: "Documentation", href: "#" },
-      { name: "API Reference", href: "#" },
-      { name: "Guides", href: "#" },
-      { name: "Support", href: "#" },
+      { name: "Documentation", href: "/documentation" },
+      { name: "API Reference", href: "/api-reference" },
+      { name: "Guides", href: "/guides" },
+      { name: "Support", href: "/support" },
     ],
     legal: [
-      { name: "Privacy", href: "#" },
-      { name: "Terms", href: "#" },
-      { name: "Cookie Policy", href: "#" },
-      { name: "Licenses", href: "#" },
+      { name: "Privacy", href: "/privacy" },
+      { name: "Terms", href: "/terms" },
+      { name: "Cookie Policy", href: "/cookie-policy" },
+      { name: "Licenses", href: "/licenses" },
     ],
   };
 
@@ -50,12 +50,12 @@ export function Footer() {
             {/* Brand Column */}
             <div className="col-span-2">
               <a href="#hero" className="flex items-center space-x-2 mb-6">
-                <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-cyan-400 to-sky-600 p-0.5">
-                  <div className="h-full w-full rounded-lg bg-black flex items-center justify-center">
-                    <div className="h-5 w-5 rounded-full bg-gradient-to-br from-cyan-400 to-sky-600"></div>
-                  </div>
-                </div>
-                <span className="bg-gradient-to-r from-cyan-400 to-sky-600 bg-clip-text text-transparent">
+                <img 
+                  src="/SaturoLogo.png" 
+                  alt="Satoru Logo" 
+                  className="h-10 w-10 object-contain"
+                />
+                <span className="text-white text-xl font-semibold">
                   Satoru
                 </span>
               </a>
@@ -75,7 +75,7 @@ export function Footer() {
                 </div>
                 <div className="flex items-center space-x-3 text-gray-400 hover:text-cyan-400 transition-colors">
                   <Mail className="w-4 h-4 flex-shrink-0" />
-                  <span>contact@cosdevs.com</span>
+                  <span>cosdevsph@outlook.ph</span>
                 </div>
               </div>
             </div>
