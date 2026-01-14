@@ -103,11 +103,11 @@ export function Roadmap() {
 
           {/* Roadmap Timeline */}
           <div className="max-w-4xl mx-auto space-y-8">
-            {roadmapItems.map((item, index) => (
-              <div
-                key={item.quarter}
-                className={`p-8 border rounded-2xl backdrop-blur-xl ${getStatusColor(item.status)}`}
-              >
+              {roadmapItems.map((item) => (
+                <div
+                  key={item.quarter}
+                  className={`p-8 border rounded-2xl backdrop-blur-xl ${getStatusColor(item.status)}`}
+                >
                 <div className="flex items-center mb-6">
                   {getStatusIcon(item.status)}
                   <h3 className="text-2xl font-bold text-white ml-3">{item.quarter}</h3>

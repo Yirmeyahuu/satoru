@@ -1,4 +1,4 @@
-import { Shield, Lock, Eye, Server, AlertTriangle, CheckCircle } from "lucide-react";
+import { Shield, Lock, Eye, Server, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export function Security() {
