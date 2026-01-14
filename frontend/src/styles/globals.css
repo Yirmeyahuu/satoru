@@ -233,82 +233,80 @@ html {
   }
 }
 
-/* Gradient Particles - Enhanced with webkit prefixes and fallbacks */
+/* Gradient Particles - ENHANCED FOR MOBILE IN-APP BROWSERS */
+/* Uses layered radial gradients instead of blur filter for better compatibility */
 .particle {
   position: absolute;
-  border-radius: 50%;
-  /* Webkit prefix for older browsers */
-  -webkit-filter: blur(60px);
-  /* Standard filter */
-  filter: blur(60px);
-  /* Fallback for browsers that don't support filter */
-  opacity: 0.8;
+  pointer-events: none;
   animation: float 20s ease-in-out infinite;
   -webkit-animation: float 20s ease-in-out infinite;
-  pointer-events: none;
   /* Force GPU acceleration */
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
-  will-change: transform, filter;
-  /* Backface visibility for better performance */
+  will-change: transform;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
 
-/* Add backdrop-filter support check and fallback */
-@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
-  .particle {
-    -webkit-filter: blur(60px);
-    filter: blur(60px);
-    opacity: 1;
-  }
-}
-
-@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
-  .particle {
-    /* Fallback for browsers without filter support */
-    opacity: 0.6;
-  }
-}
-
+/* Create blur effect using multiple layered gradients - works on all browsers */
 .particle-1 {
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(34, 211, 238, 0.3) 0%, transparent 70%);
   top: 10%;
   left: 10%;
   animation-delay: 0s;
   -webkit-animation-delay: 0s;
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.4) 0%, transparent 30%),
+    radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.3) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.15) 0%, transparent 60%),
+    radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.1) 0%, transparent 70%);
 }
 
 .particle-2 {
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(168, 85, 247, 0.25) 0%, transparent 70%);
   top: 50%;
   right: 10%;
   animation-delay: 5s;
   -webkit-animation-delay: 5s;
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.35) 0%, transparent 30%),
+    radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.25) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.15) 0%, transparent 60%),
+    radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
 }
 
 .particle-3 {
   width: 350px;
   height: 350px;
-  background: radial-gradient(circle, rgba(236, 72, 153, 0.2) 0%, transparent 70%);
   bottom: 20%;
   left: 30%;
   animation-delay: 10s;
   -webkit-animation-delay: 10s;
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.3) 0%, transparent 30%),
+    radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.2) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.1) 0%, transparent 60%),
+    radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.08) 0%, transparent 70%);
 }
 
 .particle-4 {
   width: 450px;
   height: 450px;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%);
   top: 70%;
   right: 30%;
   animation-delay: 15s;
   -webkit-animation-delay: 15s;
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.3) 0%, transparent 30%),
+    radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.2) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 60%),
+    radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
 }
 
 /* Webkit keyframes for better compatibility */
@@ -571,30 +569,51 @@ html {
   animation: gradient 3s ease infinite;
 }
 
-/* Responsive particles for mobile */
+/* Responsive particles for mobile - Smaller and more visible gradients */
 @media (max-width: 640px) {
   .particle-1 {
-    width: 180px;
-    height: 180px;
-    top: 8%;
-    left: 5%;
+    width: 250px;
+    height: 250px;
+    top: 5%;
+    left: -10%;
+    background: 
+      radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.5) 0%, transparent 25%),
+      radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.35) 0%, transparent 35%),
+      radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.25) 0%, transparent 45%),
+      radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.15) 0%, transparent 60%);
   }
+  
   .particle-2 {
-    width: 220px;
-    height: 220px;
-    top: 40%;
-    right: 0%;
+    width: 280px;
+    height: 280px;
+    top: 35%;
+    right: -15%;
+    background: 
+      radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.45) 0%, transparent 25%),
+      radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.3) 0%, transparent 35%),
+      radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.2) 0%, transparent 45%),
+      radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.12) 0%, transparent 60%);
   }
+  
   .particle-3 {
-    width: 120px;
-    height: 120px;
-    bottom: 10%;
-    left: 30%;
+    width: 200px;
+    height: 200px;
+    bottom: 15%;
+    left: 20%;
+    background: 
+      radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.4) 0%, transparent 25%),
+      radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.25) 0%, transparent 35%),
+      radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.15) 0%, transparent 50%);
   }
+  
   .particle-4 {
-    width: 160px;
-    height: 160px;
-    top: 70%;
-    right: 10%;
+    width: 230px;
+    height: 230px;
+    top: 65%;
+    right: 5%;
+    background: 
+      radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.4) 0%, transparent 25%),
+      radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.25) 0%, transparent 35%),
+      radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%);
   }
 }
