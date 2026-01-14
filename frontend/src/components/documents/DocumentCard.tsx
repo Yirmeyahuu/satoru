@@ -1,14 +1,14 @@
 import { FileText, Calendar, Trash2, Eye, Loader } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { DocumentListItem } from "../../api/types";
+import type { Document } from "../../api/types";
 
 interface DocumentCardProps {
-  document: DocumentListItem;
-  onDelete?: (id: number) => void;
+  document: Document;
+  onDelete?: (id: string) => void;  // Changed from number to string
 }
 
 export function DocumentCard({ document, onDelete }: DocumentCardProps) {
-  const getStatusColor = (status: DocumentListItem["status"]) => {
+  const getStatusColor = (status: Document["status"]) => {
     switch (status) {
       case "completed":
         return "text-green-400";
@@ -21,7 +21,7 @@ export function DocumentCard({ document, onDelete }: DocumentCardProps) {
     }
   };
 
-  const getStatusText = (status: DocumentListItem["status"]) => {
+  const getStatusText = (status: Document["status"]) => {
     switch (status) {
       case "completed":
         return "Ready";
@@ -34,16 +34,16 @@ export function DocumentCard({ document, onDelete }: DocumentCardProps) {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+  const formatDate = (date: Date | string) => {
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
     const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffTime = Math.abs(now.getTime() - dateObj.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays === 1) return "Today";
     if (diffDays === 2) return "Yesterday";
     if (diffDays <= 7) return `${diffDays - 1} days ago`;
-    return date.toLocaleDateString();
+    return dateObj.toLocaleDateString();
   };
 
   return (
@@ -63,10 +63,10 @@ export function DocumentCard({ document, onDelete }: DocumentCardProps) {
             <div className="flex items-center flex-wrap gap-3 text-sm text-gray-400">
               <span className="flex items-center space-x-1">
                 <Calendar className="w-4 h-4" />
-                <span>{formatDate(document.uploaded_at)}</span>
+                <span>{formatDate(document.uploaded_at || document.created_at)}</span>
               </span>
-              <span>{document.pages} pages</span>
-              {document.flashcard_count > 0 && (
+              {document.pages && <span>{document.pages} pages</span>}
+              {document.flashcard_count && document.flashcard_count > 0 && (
                 <span>{document.flashcard_count} flashcards</span>
               )}
             </div>

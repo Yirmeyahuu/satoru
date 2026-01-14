@@ -1,19 +1,18 @@
 import { DocumentCard } from "./DocumentCard";
-import { FileText } from "lucide-react";
+import { Loader, FileText } from "lucide-react";
 import type { Document } from "../../api/types";
 
 interface DocumentGridProps {
   documents: Document[];
-  onDelete?: (id: number) => void;
+  onDelete?: (id: string) => void;  // Changed from number to string
   loading?: boolean;
 }
 
 export function DocumentGrid({ documents, onDelete, loading }: DocumentGridProps) {
   if (loading) {
     return (
-      <div className="text-center py-12">
-        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400"></div>
-        <p className="text-gray-400 mt-4">Loading documents...</p>
+      <div className="flex items-center justify-center py-12">
+        <Loader className="w-8 h-8 text-cyan-400 animate-spin" />
       </div>
     );
   }
@@ -22,16 +21,14 @@ export function DocumentGrid({ documents, onDelete, loading }: DocumentGridProps
     return (
       <div className="text-center py-12">
         <FileText className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-        <p className="text-gray-400">No documents uploaded yet</p>
-        <p className="text-gray-500 text-sm mt-2">
-          Upload your first document to get started
-        </p>
+        <h3 className="text-xl font-semibold text-gray-400 mb-2">No documents yet</h3>
+        <p className="text-gray-500">Upload your first document to get started</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {documents.map((document) => (
         <DocumentCard
           key={document.id}

@@ -95,7 +95,7 @@ class DocumentService {
       return {
         id: docSnap.id,
         ...docSnap.data(),
-        created_at: doc.data().created_at?.toDate(),
+        created_at: docSnap.data().created_at?.toDate(),  // Fixed: docSnap not doc
         processed_at: docSnap.data().processed_at?.toDate()
       } as Document;
     } catch (error) {

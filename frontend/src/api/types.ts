@@ -17,6 +17,8 @@ export interface Document {
   pages?: number;
   created_at: Date;
   processed_at?: Date;
+  uploaded_at?: string;
+  flashcard_count?: number;
 }
 
 export interface Summary {
