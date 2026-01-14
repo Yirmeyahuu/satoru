@@ -1,4 +1,4 @@
-import { Github, Twitter, Linkedin, Mail, MapPin, Phone } from "lucide-react";
+import { Github, Twitter, Linkedin, Mail, MapPin, Phone, Facebook, Globe } from "lucide-react";
 
 export function Footer() {
   const footerLinks = {
@@ -29,10 +29,10 @@ export function Footer() {
   };
 
   const socialLinks = [
-    { icon: Github, href: "#", label: "GitHub" },
-    { icon: Twitter, href: "#", label: "Twitter" },
-    { icon: Linkedin, href: "#", label: "LinkedIn" },
-    { icon: Mail, href: "#", label: "Email" },
+    { icon: Globe, href: "https://www.cosedevs.com/", label: "Company" },
+    { icon: Facebook, href: "https://www.facebook.com/profile.php?id=61582553202066", label: "Facebook" },
+    { icon: Linkedin, href: "https://www.linkedin.com/company/cos-devsph/", label: "LinkedIn" },
+    { icon: Mail, href: "mailto:cosdevsph@outlook.ph", label: "Email" },
   ];
 
   return (
