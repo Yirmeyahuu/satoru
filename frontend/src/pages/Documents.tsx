@@ -3,7 +3,7 @@ import { DashboardLayout } from "../layouts/DashboardLayout";
 import { DocumentGrid } from "../components/documents/DocumentGrid";
 import { DocumentFilters } from "../components/documents/DocumentFilters";
 import { UploadButton } from "../components/dashboard/UploadButton";
-import { documentService, type Document } from "../firebase/documentService";
+import { documentService, type Document } from "../api/documentService";
 import { useAuth } from "../contexts/AuthContext";
 import { Upload } from "lucide-react";
 

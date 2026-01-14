@@ -9,7 +9,8 @@ class HuggingFaceService:
     """Service for interacting with deployed Hugging Face model"""
     
     def __init__(self):
-        self.api_url = "https://yirmeyahudev-satoru-ai-deploy.hf.space"
+        # Load from environment variable, fallback to localhost for testing
+        self.api_url = os.getenv('HF_API_URL', 'http://localhost:7860')
         print(f"Initializing Hugging Face service with URL: {self.api_url}")
     
     def extract_text_from_pdf(self, file_path: str) -> tuple[str, int]:
@@ -48,38 +49,113 @@ class HuggingFaceService:
             print(f"ERROR extracting text from PDF: {str(e)}")
             raise Exception(f"Error extracting text from PDF: {str(e)}")
     
-    def generate_summary(self, text: str) -> Dict:
+    def generate_summary_from_file(self, file_path: str) -> Dict:
         """
-        Generate summary using Hugging Face model
+        Generate summary by uploading PDF file to Hugging Face
         """
-        print(f"Generating summary for {len(text)} characters of text")
-        
-        # Limit text to avoid token limits
-        text_sample = text[:4000]  # Adjust based on your model's limits
+        print(f"Generating summary from file: {file_path}")
         
         try:
-            print("Calling Hugging Face API for summary...")
+            # TEMPORARY: Extract text first and send as JSON instead of file
+            text, _ = self.extract_text_from_pdf(file_path)
+            
+            # Limit text to avoid overwhelming the model
+            text_sample = text[:8000]  # First 8000 characters
+            
+            print(f"Sending {len(text_sample)} characters to HF for summarization")
+            
+            # Send as JSON instead of file upload
             response = requests.post(
-                f"{self.api_url}/summarize",
-                json={"text": text_sample},
-                timeout=60
+                f"{self.api_url}/api/v1/summarize",  # Changed endpoint
+                json={"text": text_sample},  # Send as JSON
+                timeout=120
             )
-            response.raise_for_status()
+            
+            print(f"HF Response Status: {response.status_code}")
+            print(f"HF Response: {response.text[:1000]}")
+            
+            if response.status_code != 200:
+                raise Exception(f"HF API returned status {response.status_code}: {response.text}")
             
             result = response.json()
             print("Summary generated successfully")
             
-            # Format response to match expected structure
+            # Extract structured data from response
+            summary_text = result.get("summary", "")
+            
+            # Parse key points, insights, examples if available
+            # Otherwise create basic structure
             return {
-                "summary": result.get("summary", ""),
+                "summary": summary_text,
                 "key_points": result.get("key_points", []),
                 "insights": result.get("insights", []),
                 "examples": result.get("examples", [])
             }
             
+        except requests.exceptions.Timeout:
+            print(f"ERROR: Request timed out after 120 seconds")
+            raise Exception("Request to Hugging Face service timed out")
+        except requests.exceptions.ConnectionError as e:
+            print(f"ERROR: Could not connect to Hugging Face service: {str(e)}")
+            raise Exception(f"Could not connect to Hugging Face service at {self.api_url}")
         except requests.exceptions.RequestException as e:
             print(f"ERROR calling Hugging Face API: {str(e)}")
-            raise Exception(f"Error generating summary: {str(e)}")
+            if hasattr(e, 'response') and e.response is not None:
+                print(f"Response content: {e.response.text}")
+            raise Exception(f"Error generating summary from file: {str(e)}")
+        except json.JSONDecodeError as e:
+            print(f"ERROR: Invalid JSON response from Hugging Face: {str(e)}")
+            raise Exception("Invalid response format from Hugging Face service")
+    
+    def generate_reviewer(self, file_path: str) -> Dict:
+        """
+        Generate comprehensive reviewer from PDF file
+        """
+        print(f"Generating reviewer from file: {file_path}")
+        
+        try:
+            with open(file_path, 'rb') as f:
+                files = {'file': (os.path.basename(file_path), f, 'application/pdf')}
+                
+                print(f"Uploading PDF to Hugging Face for reviewer generation")
+                response = requests.post(
+                    f"{self.api_url}/api/v1/review-document",
+                    files=files,
+                    timeout=180
+                )
+                
+                print(f"HF Response Status: {response.status_code}")
+                print(f"HF Response: {response.text[:1000]}")
+                
+                if response.status_code != 200:
+                    raise Exception(f"HF API returned status {response.status_code}: {response.text}")
+                
+                result = response.json()
+                review_data = result.get('review', {})
+                
+                print("Reviewer generated successfully")
+                
+                return {
+                    "title": review_data.get("title", ""),
+                    "overview": review_data.get("overview", ""),
+                    "sections": review_data.get("sections", []),
+                    "key_takeaways": review_data.get("key_takeaways", [])
+                }
+                
+        except requests.exceptions.Timeout:
+            print(f"ERROR: Reviewer request timed out after 180 seconds")
+            raise Exception("Reviewer request timed out")
+        except requests.exceptions.ConnectionError as e:
+            print(f"ERROR: Could not connect to Hugging Face service: {str(e)}")
+            raise Exception(f"Could not connect to Hugging Face service")
+        except requests.exceptions.RequestException as e:
+            print(f"ERROR calling Hugging Face API: {str(e)}")
+            if hasattr(e, 'response') and e.response is not None:
+                print(f"Response content: {e.response.text}")
+            raise Exception(f"Error generating reviewer: {str(e)}")
+        except json.JSONDecodeError as e:
+            print(f"ERROR: Invalid JSON response: {str(e)}")
+            raise Exception("Invalid response format from Hugging Face service")
     
     def generate_flashcards(self, text: str, count: int = 20) -> List[Dict]:
         """
@@ -92,17 +168,22 @@ class HuggingFaceService:
         
         print(f"Generating {count} flashcards from {len(text)} characters")
         
-        # Limit text
+        # Limit text to avoid token limits
         text_sample = text[:4000]
         
         try:
             print("Calling Hugging Face API for flashcards...")
             response = requests.post(
-                f"{self.api_url}/generate-qa",
+                f"{self.api_url}/api/v1/generate-qa",
                 json={"text": text_sample, "num_questions": count},
                 timeout=60
             )
-            response.raise_for_status()
+            
+            print(f"HF Response Status: {response.status_code}")
+            print(f"HF Response: {response.text[:500]}")
+            
+            if response.status_code != 200:
+                raise Exception(f"HF API returned status {response.status_code}: {response.text}")
             
             result = response.json()
             flashcards = result.get("qa_pairs", [])
@@ -115,7 +196,7 @@ class HuggingFaceService:
                 formatted_flashcards.append({
                     "question": card.get("question", ""),
                     "answer": card.get("answer", ""),
-                    "difficulty": "medium"  # Default difficulty
+                    "difficulty": "medium"
                 })
             
             # Ensure we have the right number
@@ -127,9 +208,20 @@ class HuggingFaceService:
             print(f"Returning {len(formatted_flashcards)} flashcards")
             return formatted_flashcards
             
+        except requests.exceptions.Timeout:
+            print(f"ERROR: Flashcard request timed out after 60 seconds")
+            raise Exception("Flashcard generation timed out")
+        except requests.exceptions.ConnectionError as e:
+            print(f"ERROR: Could not connect to Hugging Face service: {str(e)}")
+            raise Exception(f"Could not connect to Hugging Face service")
         except requests.exceptions.RequestException as e:
             print(f"ERROR calling Hugging Face API: {str(e)}")
+            if hasattr(e, 'response') and e.response is not None:
+                print(f"Response content: {e.response.text}")
             raise Exception(f"Error generating flashcards: {str(e)}")
+        except json.JSONDecodeError as e:
+            print(f"ERROR: Invalid JSON response: {str(e)}")
+            raise Exception("Invalid response format from Hugging Face service")
 
 
 # Create singleton instance

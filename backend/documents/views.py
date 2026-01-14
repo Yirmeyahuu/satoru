@@ -7,11 +7,10 @@ from .huggingface_service import huggingface_service
 import uuid
 from datetime import datetime
 import os
-import requests
+import tempfile
 import PyPDF2
 
 db = get_firestore_client()
-HF_API_URL = os.environ.get("HUGGINGFACE_API_URL")
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -22,39 +21,41 @@ def upload_document(request):
     file = request.FILES['file']
     user = request.user
 
-    # Validate file type and size as before...
+    # Validate file type
+    if not file.name.endswith('.pdf'):
+        return Response({'error': 'Only PDF files are supported'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Validate file size (max 10MB)
+    if file.size > 10 * 1024 * 1024:
+        return Response({'error': 'File size must be less than 10MB'}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        # Extract text from PDF
-        pdf_reader = PyPDF2.PdfReader(file)
-        text = ""
-        for page in pdf_reader.pages:
-            text += page.extract_text() or ""
+        # Save file temporarily
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
+        for chunk in file.chunks():
+            temp_file.write(chunk)
+        temp_file.close()
         
-        # Send extracted text to Hugging Face API
-        hf_response = requests.post(
-            HF_API_URL,
-            json={"text": text},
-            timeout=600
-        )
-        print("HF status:", hf_response.status_code)
-        print("HF response:", hf_response.text)
-        if hf_response.status_code != 200:
-            return Response({'error': 'Failed to process document with Hugging Face', 'details': hf_response.text}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        print(f"Saved temporary file: {temp_file.name}")
         
-        hf_data = hf_response.json()
-        summary_data = hf_data.get('summary', '')
-
-        # Example: Generate flashcards (replace with your own logic or Hugging Face output)
-        flashcards = hf_data.get('flashcards', [])
-        # If Hugging Face doesn't return flashcards, you can generate simple ones:
-        if not flashcards:
-            flashcards = [
-                {
-                    'question': 'What is the main topic of the document?',
-                    'answer': summary_data,
-                }
-            ]
+        # Extract text and page count
+        text, page_count = huggingface_service.extract_text_from_pdf(temp_file.name)
+        
+        # Generate summary from FILE (not just text)
+        print("Generating summary...")
+        summary_data = huggingface_service.generate_summary_from_file(temp_file.name)
+        
+        # Generate reviewer from FILE (NEW)
+        print("Generating reviewer...")
+        try:
+            reviewer_data = huggingface_service.generate_reviewer(temp_file.name)
+        except Exception as reviewer_error:
+            print(f"WARNING: Failed to generate reviewer: {str(reviewer_error)}")
+            reviewer_data = None
+        
+        # Generate flashcards from extracted text
+        print("Generating flashcards...")
+        flashcards_data = huggingface_service.generate_flashcards(text, count=20)
 
         # Create document data
         doc_id = str(uuid.uuid4())
@@ -66,105 +67,76 @@ def upload_document(request):
             "file_name": file.name,
             "file_size": file.size,
             "status": "completed",
+            "pages": page_count,
             "created_at": datetime.utcnow(),
             "processed_at": datetime.utcnow(),
         }
 
-        # Save doc_data to Firestore
+        # Save document to Firestore
+        print(f"Saving document {doc_id} to Firestore...")
         db.collection('documents').document(doc_id).set(doc_data)
 
         # Save summary to Firestore
+        print("Saving summary to Firestore...")
         db.collection('summaries').document(doc_id).set({
-            'summary': summary_data,
+            'summary': summary_data.get('summary', ''),
+            'key_points': summary_data.get('key_points', []),
+            'insights': summary_data.get('insights', []),
+            'examples': summary_data.get('examples', []),
             'document_id': doc_id,
             'created_at': datetime.utcnow(),
         })
 
+        # Save reviewer to Firestore (NEW)
+        if reviewer_data:
+            print("Saving reviewer to Firestore...")
+            db.collection('reviewers').document(doc_id).set({
+                'title': reviewer_data.get('title', file.name),
+                'overview': reviewer_data.get('overview', ''),
+                'sections': reviewer_data.get('sections', []),
+                'key_takeaways': reviewer_data.get('key_takeaways', []),
+                'document_id': doc_id,
+                'created_at': datetime.utcnow(),
+            })
+        else:
+            print("Skipping reviewer save (generation failed)")
+
         # Save flashcards to Firestore
-        for i, card in enumerate(flashcards):
+        print(f"Saving {len(flashcards_data)} flashcards to Firestore...")
+        for i, card in enumerate(flashcards_data):
             db.collection('flashcards').add({
                 'document_id': doc_id,
                 'question': card['question'],
                 'answer': card['answer'],
+                'difficulty': card.get('difficulty', 'medium'),
                 'order': i,
                 'created_at': datetime.utcnow(),
             })
+
+        # Clean up temp file
+        os.unlink(temp_file.name)
+        print("Document processing completed successfully!")
 
         return Response({
             'message': 'Document uploaded and processed successfully',
             'document': doc_data,
             'summary': summary_data,
-            'flashcards': flashcards
+            'reviewer': reviewer_data if reviewer_data else None,
+            'flashcard_count': len(flashcards_data)
         }, status=status.HTTP_201_CREATED)
 
     except Exception as e:
+        print(f"ERROR in upload_document: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        
+        # Clean up temp file on error
+        if 'temp_file' in locals():
+            try:
+                os.unlink(temp_file.name)
+            except:
+                pass
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-def process_document_background(doc_id, file_url):
-    """Process document in background"""
-    try:
-        # Download PDF temporarily
-        import requests
-        temp_file = f'/tmp/{doc_id}.pdf'
-        
-        response = requests.get(file_url)
-        with open(temp_file, 'wb') as f:
-            f.write(response.content)
-        
-        # Extract text
-        text, page_count = huggingface_service.extract_text_from_pdf(temp_file)
-        
-        # Generate summary
-        summary_data = huggingface_service.generate_summary(text)
-        
-        # Generate flashcards
-        flashcards_data = huggingface_service.generate_flashcards(text, count=20)
-        
-        # Update document in Firestore
-        doc_ref = db.collection('documents').document(doc_id)
-        doc_ref.update({
-            'status': 'completed',
-            'pages': page_count,
-            'processed_at': datetime.utcnow(),
-            'extracted_text': text[:5000]  # Store first 5000 chars
-        })
-        
-        # Save summary
-        db.collection('summaries').document(doc_id).set({
-            'document_id': doc_id,
-            'summary': summary_data.get('summary', ''),
-            'key_points': summary_data.get('key_points', []),
-            'insights': summary_data.get('insights', []),
-            'examples': summary_data.get('examples', []),
-            'created_at': datetime.utcnow()
-        })
-        
-        # Save flashcards
-        batch = db.batch()
-        for idx, card in enumerate(flashcards_data):
-            card_ref = db.collection('flashcards').document()
-            batch.set(card_ref, {
-                'document_id': doc_id,
-                'question': card['question'],
-                'answer': card['answer'],
-                'difficulty': card.get('difficulty', 'medium'),
-                'order': idx,
-                'created_at': datetime.utcnow()
-            })
-        batch.commit()
-        
-        # Clean up temp file
-        os.remove(temp_file)
-        
-        print(f"✓ Document {doc_id} processed successfully")
-        
-    except Exception as e:
-        print(f"✗ Error processing document {doc_id}: {str(e)}")
-        db.collection('documents').document(doc_id).update({
-            'status': 'failed',
-            'error': str(e)
-        })
 
 
 @api_view(['GET'])
@@ -175,7 +147,7 @@ def get_documents(request):
     
     try:
         docs = db.collection('documents')\
-            .where('user_id', '==', user['uid'])\
+            .where('user_id', '==', user.uid)\
             .order_by('created_at', direction='DESCENDING')\
             .stream()
         
@@ -207,7 +179,7 @@ def get_document(request, doc_id):
         doc_data = doc.to_dict()
         
         # Check ownership
-        if doc_data['user_id'] != user['uid']:
+        if doc_data['user_id'] != user.uid:
             return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
         
         # Get summary
@@ -246,14 +218,8 @@ def delete_document(request, doc_id):
         
         doc_data = doc.to_dict()
         
-        if doc_data['user_id'] != user['uid']:
+        if doc_data['user_id'] != user.uid:
             return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
-        
-        # Delete from Storage
-        file_path = f"documents/{user['uid']}/{doc_id}/"
-        blobs = bucket.list_blobs(prefix=file_path)
-        for blob in blobs:
-            blob.delete()
         
         # Delete flashcards
         flashcards = db.collection('flashcards').where('document_id', '==', doc_id).stream()

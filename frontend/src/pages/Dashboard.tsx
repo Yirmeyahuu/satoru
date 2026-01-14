@@ -4,7 +4,7 @@ import { RecentUploads } from "../components/dashboard/RecentUploads";
 import { Sparkles, Upload as UploadIcon } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { documentService } from "../firebase/documentService"; // Correct import for documentService
+import { documentService } from "../api/documentService"; // Correct import for documentService
 
 export function Dashboard() {
   const { user, loading: authLoading } = useAuth();
