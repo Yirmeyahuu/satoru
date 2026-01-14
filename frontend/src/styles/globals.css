@@ -233,13 +233,42 @@ html {
   }
 }
 
-/* Gradient Particles */
+/* Gradient Particles - Enhanced with webkit prefixes and fallbacks */
 .particle {
   position: absolute;
   border-radius: 50%;
+  /* Webkit prefix for older browsers */
+  -webkit-filter: blur(60px);
+  /* Standard filter */
   filter: blur(60px);
+  /* Fallback for browsers that don't support filter */
+  opacity: 0.8;
   animation: float 20s ease-in-out infinite;
+  -webkit-animation: float 20s ease-in-out infinite;
   pointer-events: none;
+  /* Force GPU acceleration */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: transform, filter;
+  /* Backface visibility for better performance */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Add backdrop-filter support check and fallback */
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .particle {
+    -webkit-filter: blur(60px);
+    filter: blur(60px);
+    opacity: 1;
+  }
+}
+
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .particle {
+    /* Fallback for browsers without filter support */
+    opacity: 0.6;
+  }
 }
 
 .particle-1 {
@@ -249,6 +278,7 @@ html {
   top: 10%;
   left: 10%;
   animation-delay: 0s;
+  -webkit-animation-delay: 0s;
 }
 
 .particle-2 {
@@ -258,6 +288,7 @@ html {
   top: 50%;
   right: 10%;
   animation-delay: 5s;
+  -webkit-animation-delay: 5s;
 }
 
 .particle-3 {
@@ -267,6 +298,7 @@ html {
   bottom: 20%;
   left: 30%;
   animation-delay: 10s;
+  -webkit-animation-delay: 10s;
 }
 
 .particle-4 {
@@ -276,21 +308,50 @@ html {
   top: 70%;
   right: 30%;
   animation-delay: 15s;
+  -webkit-animation-delay: 15s;
+}
+
+/* Webkit keyframes for better compatibility */
+@-webkit-keyframes float {
+  0%, 100% {
+    -webkit-transform: translate(0, 0) scale(1);
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    -webkit-transform: translate(30px, -30px) scale(1.1);
+    transform: translate(30px, -30px) scale(1.1);
+  }
+  66% {
+    -webkit-transform: translate(-20px, 20px) scale(0.9);
+    transform: translate(-20px, 20px) scale(0.9);
+  }
 }
 
 @keyframes float {
   0%, 100% {
+    -webkit-transform: translate(0, 0) scale(1);
     transform: translate(0, 0) scale(1);
   }
   33% {
+    -webkit-transform: translate(30px, -30px) scale(1.1);
     transform: translate(30px, -30px) scale(1.1);
   }
   66% {
+    -webkit-transform: translate(-20px, 20px) scale(0.9);
     transform: translate(-20px, 20px) scale(0.9);
   }
 }
 
 /* Fade In Animations */
+@-webkit-keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -300,55 +361,89 @@ html {
   }
 }
 
-@keyframes fade-in-up {
+@-webkit-keyframes fade-in-up {
   from {
     opacity: 0;
+    -webkit-transform: translateY(20px);
     transform: translateY(20px);
   }
   to {
     opacity: 1;
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    -webkit-transform: translateY(20px);
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: translateY(0);
     transform: translateY(0);
   }
 }
 
 .animate-fade-in {
+  -webkit-animation: fade-in 0.8s ease-out;
   animation: fade-in 0.8s ease-out;
 }
 
 .animate-fade-in-up {
+  -webkit-animation: fade-in-up 0.8s ease-out;
   animation: fade-in-up 0.8s ease-out;
 }
 
 .animation-delay-200 {
+  -webkit-animation-delay: 0.2s;
   animation-delay: 0.2s;
+  -webkit-animation-fill-mode: backwards;
   animation-fill-mode: backwards;
 }
 
 .animation-delay-400 {
+  -webkit-animation-delay: 0.4s;
   animation-delay: 0.4s;
+  -webkit-animation-fill-mode: backwards;
   animation-fill-mode: backwards;
 }
 
 .animation-delay-600 {
+  -webkit-animation-delay: 0.6s;
   animation-delay: 0.6s;
+  -webkit-animation-fill-mode: backwards;
   animation-fill-mode: backwards;
 }
 
 /* Slow Ping Animation */
+@-webkit-keyframes ping-slow {
+  75%, 100% {
+    -webkit-transform: scale(1.5);
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
 @keyframes ping-slow {
   75%, 100% {
+    -webkit-transform: scale(1.5);
     transform: scale(1.5);
     opacity: 0;
   }
 }
 
 .animate-ping-slow {
+  -webkit-animation: ping-slow 3s cubic-bezier(0, 0, 0.2, 1) infinite;
   animation: ping-slow 3s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
 /* Smooth Scroll */
 html {
   scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Custom Scrollbar */
@@ -376,49 +471,91 @@ html {
   }
 }
 
-@keyframes fade-in-up {
+@-webkit-keyframes fade-in-up {
   from {
     opacity: 0;
+    -webkit-transform: translateY(30px);
     transform: translateY(30px);
   }
   to {
     opacity: 1;
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    -webkit-transform: translateY(30px);
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: translateY(0);
     transform: translateY(0);
   }
 }
 
 .animate-fade-in-up {
+  -webkit-animation: fade-in-up 0.8s ease-out forwards;
   animation: fade-in-up 0.8s ease-out forwards;
   opacity: 0;
 }
 
 .animation-delay-200 {
+  -webkit-animation-delay: 200ms;
   animation-delay: 200ms;
 }
 
 .animation-delay-400 {
+  -webkit-animation-delay: 400ms;
   animation-delay: 400ms;
 }
 
 .animation-delay-600 {
+  -webkit-animation-delay: 600ms;
   animation-delay: 600ms;
 }
 
 /* Shimmer effect for welcome section */
-@keyframes shimmer {
+@-webkit-keyframes shimmer {
   0% {
+    -webkit-transform: translateX(-100%);
     transform: translateX(-100%);
   }
   100% {
+    -webkit-transform: translateX(100%);
+    transform: translateX(100%);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    -webkit-transform: translateX(-100%);
+    transform: translateX(-100%);
+  }
+  100% {
+    -webkit-transform: translateX(100%);
     transform: translateX(100%);
   }
 }
 
 .animate-shimmer {
+  -webkit-animation: shimmer 3s ease-in-out infinite;
   animation: shimmer 3s ease-in-out infinite;
 }
 
 /* Gradient animation */
+@-webkit-keyframes gradient {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
 @keyframes gradient {
   0%, 100% {
     background-position: 0% 50%;
@@ -430,6 +567,7 @@ html {
 
 .animate-gradient {
   background-size: 200% auto;
+  -webkit-animation: gradient 3s ease infinite;
   animation: gradient 3s ease infinite;
 }
 
