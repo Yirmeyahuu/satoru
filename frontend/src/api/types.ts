@@ -1,5 +1,4 @@
-// Legacy types - keeping for backward compatibility during migration
-// Most of these are now in firebase/documentService.ts
+// Consolidated types - single source of truth
 
 export interface User {
   uid: string;
@@ -12,11 +11,10 @@ export interface Document {
   id: string;
   user_id: string;
   title: string;
-  file_url: string;
   file_name: string;
   file_size: number;
   status: 'processing' | 'completed' | 'failed';
-  pages: number;
+  pages?: number;
   created_at: Date;
   processed_at?: Date;
 }
@@ -36,7 +34,23 @@ export interface Flashcard {
   order: number;
 }
 
+export interface ReviewSection {
+  title: string;
+  content: string;
+  order: number;
+}
+
+export interface Reviewer {
+  title: string;
+  overview: string;
+  sections: ReviewSection[];
+  key_takeaways: string[];
+}
+
 export interface ApiError {
   error: string;
   details?: string;
 }
+
+// Alias for backward compatibility
+export type DocumentListItem = Document;

@@ -8,53 +8,14 @@ import {
   orderBy,
   onSnapshot,
 } from 'firebase/firestore';
-import  { db, auth } from '../firebase/config';
+import { db, auth } from '../firebase/config';
 import axios from 'axios';
+import type { Document, Summary, Flashcard, Reviewer, ReviewSection } from './types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
-// ===== TYPES =====
-
-export interface Document {
-  id: string;
-  user_id: string;
-  title: string;
-  file_name: string;
-  file_size: number;
-  status: 'processing' | 'completed' | 'failed';
-  pages?: number;
-  created_at: Date;
-  processed_at?: Date;
-}
-
-export interface Summary {
-  summary: string;
-  key_points: string[];
-  insights: string[];
-  examples: any[];
-}
-
-export interface Flashcard {
-  id: string;
-  question: string;
-  answer: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  order: number;
-}
-
-// Add to existing types
-export interface ReviewSection {
-  title: string;
-  content: string;
-  order: number;
-}
-
-export interface Reviewer {
-  title: string;
-  overview: string;
-  sections: ReviewSection[];
-  key_takeaways: string[];
-}
+// Re-export types for convenience
+export type { Document, Summary, Flashcard, Reviewer, ReviewSection };
 
 // ===== SERVICE CLASS =====
 
@@ -134,7 +95,7 @@ class DocumentService {
       return {
         id: docSnap.id,
         ...docSnap.data(),
-        created_at: docSnap.data().created_at?.toDate(),
+        created_at: doc.data().created_at?.toDate(),
         processed_at: docSnap.data().processed_at?.toDate()
       } as Document;
     } catch (error) {
@@ -161,7 +122,7 @@ class DocumentService {
   }
 
   /**
-   * Get document reviewer (NEW)
+   * Get document reviewer
    */
   async getDocumentReviewer(docId: string): Promise<Reviewer | null> {
     try {
